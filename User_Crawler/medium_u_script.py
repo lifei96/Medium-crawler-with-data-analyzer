@@ -24,8 +24,13 @@ def BFS(start):
 	queue.enqueue(start)
 	while queue.size():
 		current = queue.dequeue()
+		try:
+			medium_u_crawler_main.get(current)
+		except:
+			print("----------Failed")
+			continue
+		print("----------Success")
 		visited.append(current)
-		medium_u_crawler_main.get(current)
 		input_text = codecs.open("./Data/%s_following.txt"%str(current), 'r', 'utf-8')
 		following = (str(input_text.read()).replace('\n', '').replace('"', '').replace(' ', '').replace("{following_ID:[", "").replace("]}", "")).split(',')
 		for fol in following:
