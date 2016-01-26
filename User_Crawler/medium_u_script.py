@@ -23,7 +23,6 @@ def BFS(start):
 	queue = Queue()
 	queue.enqueue(start)
 	while queue.size():
-		print(queue.size())
 		current = queue.dequeue()
 		visited.append(current)
 		medium_u_crawler_main.get(current)
@@ -39,7 +38,6 @@ def BFS(start):
 			if fol not in visited:
 				queue.enqueue(fol)
 		input_text.close()
-		print(queue.size())
 
 BFS(begin_ID)
 

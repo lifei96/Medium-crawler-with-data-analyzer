@@ -62,7 +62,6 @@ def get_followers(ID, driver):
 			cnt = cnt + 1
 			if cnt > 5:
 				break
-	print (len(followers_list))
 	cnt = 0
 	for fol in followers_list:
 		if fol.get_attribute("data-action") == "show-user-card":
