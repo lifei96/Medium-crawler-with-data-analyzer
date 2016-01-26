@@ -39,9 +39,9 @@ def get_profile(ID, driver):
 	button_list = driver.find_elements_by_class_name("button")
 	for button in button_list:
 		if button.get_attribute("data-action-value") == "following":
-			user.data['Following'] = button.text.split()[0]
+			user.data['Following'] = int(filter(str.isdigit, str(button.get_attribute("title"))))
 		if button.get_attribute("data-action-value") == "followers":
-			user.data['Followers'] = button.text.split()[0]
+			user.data['Followers'] = int(filter(str.isdigit, str(button.get_attribute("title"))))
 		if button.get_attribute("title") == "Twitter":
 			user.data['Twitter_ID'] = str(button.get_attribute("href"))[20:]
 		if button.get_attribute("title") == "Facebook":
