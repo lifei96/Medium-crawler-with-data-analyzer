@@ -21,7 +21,7 @@ class Connection(object):
 def get_followers(ID, driver):
 	url = "https://medium.com/@" + str(ID)
 	driver.get(url)
-	time.sleep(3)
+	time.sleep(2)
 	connection = Connection()
 	flag = 0
 	button_list = driver.find_elements_by_class_name("button")
@@ -37,7 +37,10 @@ def get_followers(ID, driver):
 	cnt=0
 	cnt2=0
 	while True:
+		if cnt2 > 10:
+			break
 		cnt2 = cnt2 + 1
+		print (cnt2)
 		if cnt2 % 10 == 0:
 			cnt = 0
 		flag = 0
@@ -48,19 +51,19 @@ def get_followers(ID, driver):
 					button.click()
 				except:
 					break
-				time.sleep(2)
+				time.sleep(1)
 				flag = 1
 				break
 		if flag == 0:
 			cnt = cnt + 1
-			if cnt > 5:
+			if cnt > 1:
 				break
 		followers_list = driver.find_elements_by_class_name("link")
 		if(len(followers_list) > size):
 			size = len(followers_list)
 		else:
 			cnt = cnt + 1
-			if cnt > 5:
+			if cnt > 1:
 				break
 	cnt = 0
 	for fol in followers_list:

@@ -4,26 +4,49 @@ import codecs
 import os
 import medium_u_crawler_main
 
-begin_ID = "chenyang03"
-
 class Queue:
-    def __init__(self):
-        self.items = []
-    def isEmpty(self):
-        return self.items == []
-    def enqueue(self, item):
-        self.items.insert(0,item)
-    def dequeue(self):
-        return self.items.pop()
-    def size(self):
-        return len(self.items)
-        
-def BFS(start):
+	def __init__(self):
+        	self.items = []
+	def isEmpty(self): 
+		return self.items == [] 
+	def enqueue(self, item): 
+		self.items.insert(0,item) 
+	def dequeue(self): 
+		return self.items.pop() 
+	def size(self): 
+		return len(self.items) 
+
+def BFS():
 	visited = []
+	visited_input = codecs.open("./Visited.txt", 'r', 'utf-8')
+	visited_list = (str(visited_input.read()).replace('\n','')).split(' ')
+	for v in visited_list:
+		visited.append(v)
+	visited_input.close()
 	queue = Queue()
-	queue.enqueue(start)
+	queue_input = codecs.open("./Queue.txt", 'r', 'utf-8')
+	queue_list = (str(queue_input.read()).replace('\n','')).split(' ')
+	for q in queue_list:
+		queue.enqueue(q)
+	queue_input.close()
+	cnt=0
 	while queue.size():
+		if cnt % 1 == 0:
+			queue_output = codecs.open("./Queue.txt", 'w', 'utf-8')
+			for q in queue.items:
+				queue_output.write(str(q) + " ")
+			queue_output.close()
+			visited_output = codecs.open("./Visited.txt", 'w', 'utf-8')
+			for v in visited:
+				visited_output.write(str(v) + " ")
+			visited_output.close()
+		cnt = cnt + 1
+		status_output = codecs.open("./Status.txt", 'w', 'utf-8')
+		status_output.write("%s users have been visited"%(len(visited)-1))
+		status_output.close()
 		current = queue.dequeue()
+		if current == "":
+			continue
 		try:
 			medium_u_crawler_main.get(current)
 		except:
@@ -44,5 +67,5 @@ def BFS(start):
 				queue.enqueue(fol)
 		input_text.close()
 
-BFS(begin_ID)
+BFS()
 

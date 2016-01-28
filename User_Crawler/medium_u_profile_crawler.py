@@ -47,4 +47,3 @@ def get_profile(ID, driver):
 		if button.get_attribute("title") == "Facebook":
 			user.data['Facebook_ID'] = str(button.get_attribute("href"))[21:]
 	return user
-
