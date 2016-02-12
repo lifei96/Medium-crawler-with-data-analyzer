@@ -70,4 +70,3 @@ def BFS():
 		input_text.close()
 
 BFS()
-
