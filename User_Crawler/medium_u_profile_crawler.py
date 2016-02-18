@@ -24,7 +24,7 @@ class User(object):
 		+ '    \"Following\": ' + str(self.data['Following']) + ",\n"\
 		+ '    \"Followers\": ' + str(self.data['Followers']) + ",\n"\
 		+ '    \"Twitter_ID\": \"' + str(self.data['Twitter_ID']) + "\",\n"\
-		+ '    \"Facebook_ID\": \"' + str(self.data['Facebook_ID']) + "\",\n}"
+		+ '    \"Facebook_ID\": \"' + str(self.data['Facebook_ID']) + "\"\n}"
 		return result
 
 def get_profile(ID, driver):
