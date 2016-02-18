@@ -12,6 +12,7 @@ def Get(num):
 	ID_list_input = codecs.open("./ID_list.txt", 'r', 'utf-8')
 	ID_list = (str(ID_list_input.read()).replace('\n','')).split(' ')
 	ID_random_list = random.sample(ID_list, num)
+	ID_list_input.close()
 	ID_random_list_remove = []
 	cnt = 0
 	for ID in ID_random_list:
@@ -30,6 +31,7 @@ def Get(num):
 		ID_input = open('./Data/%s_profile.txt'%str(ID), 'r')
 		ID_profile = json.load(ID_input)
 		ID_profile_list.append(ID_profile)
+		ID_input.close()
 	Size = len(ID_profile_list)
 	Result += "Number of users: %d"%Size
 	#Only Twitter
