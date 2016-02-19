@@ -31,6 +31,6 @@ def get(ID):
 		out.close()
 		print("-----followers obtained")
 	except:
-		driver.close()
+		driver.quit()
 		raise
-	driver.close()
+	driver.quit()

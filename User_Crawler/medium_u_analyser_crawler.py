@@ -17,6 +17,6 @@ def get(ID):
 		out.close()
 		print("-----profile obtained")
 	except:
-		driver.close()
+		driver.quit()
 		raise
-	driver.close()
+	driver.quit()
