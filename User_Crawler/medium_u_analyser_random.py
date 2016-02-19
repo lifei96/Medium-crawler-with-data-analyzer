@@ -23,7 +23,6 @@ def Get(num):
 		except:
 			print "-----failed"
 			ID_random_list_remove.append(ID)
-		time.sleep(1)
 	for ID in ID_random_list_remove:
 		ID_random_list.remove(ID)
 	ID_profile_list = []
