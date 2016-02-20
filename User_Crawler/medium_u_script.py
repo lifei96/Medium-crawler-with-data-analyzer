@@ -2,11 +2,12 @@
 import json
 import codecs
 import os
+import random
 import medium_u_crawler_main
 
 class Queue:
 	def __init__(self):
-		self.items = []
+	        self.items = []
 	def isEmpty(self): 
 		return self.items == [] 
 	def enqueue(self, item): 
@@ -23,15 +24,18 @@ def BFS():
 	for v in visited_list:
 		visited.append(v)
 	visited_input.close()
+	visited = list(set(visited))
 	queue = Queue()
 	queue_input = codecs.open("./Queue.txt", 'r', 'utf-8')
 	queue_list = (str(queue_input.read()).replace('\n','')).split(' ')
 	for q in queue_list:
-		queue.enqueue(q)
+		if q not in visited:
+			queue.enqueue(q)
 	queue_input.close()
-	cnt=0
+	queue.items = list(set(queue.items))
+	random.shuffle(queue.items)
 	while queue.size():
-		if cnt % 30 == 0:
+		if (len(visited)-1) % 100 == 0:
 			queue_output = codecs.open("./Queue.txt", 'w', 'utf-8')
 			for q in queue.items:
 				queue_output.write(str(q) + " ")
@@ -40,7 +44,7 @@ def BFS():
 			for v in visited:
 				visited_output.write(str(v) + " ")
 			visited_output.close()
-		cnt = cnt + 1
+			random.shuffle(queue.items)
 		status_output = codecs.open("./Status.txt", 'w', 'utf-8')
 		status_output.write("%s users have been visited"%(len(visited)-1))
 		status_output.write("%s users are in the Queue"%(queue.size()))
@@ -61,13 +65,15 @@ def BFS():
 		following = (str(input_text.read()).replace('\n', '').replace('"', '').replace(' ', '').replace("{following_ID:[", "").replace("]}", "")).split(',')
 		for fol in following:
 			if fol not in visited:
-				queue.enqueue(fol)
+				if fol not in queue.items:
+					queue.enqueue(fol)
 		input_text.close()
 		input_text = codecs.open("./Data/%s_followers.txt"%str(current), 'r', 'utf-8')
 		followers = (str(input_text.read()).replace('\n', '').replace('"', '').replace(' ', '').replace("{followers_ID:[", "").replace("]}", "")).split(',')
 		for fol in followers:
 			if fol not in visited:
-				queue.enqueue(fol)
+				if fol not in queue.items:
+					queue.enqueue(fol)
 		input_text.close()
 
 BFS()
