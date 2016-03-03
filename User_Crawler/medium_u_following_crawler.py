@@ -1,7 +1,12 @@
 # encoding: utf-8
 import random
 import time
-from selenium import webdriver
+import json
+import codecs
+import urllib2
+import cookielib
+import HTMLParser
+import re
 
 class Connection(object):
 	def __init__(self):
@@ -18,59 +23,30 @@ class Connection(object):
 		result = result + "        \"" + str(list(self.following)[-1]) + "\"\n    ]\n}"
 		return result
 
-def get_following(ID, driver):
-	url = "https://medium.com/@" + str(ID)
-	driver.get(url)
-	time.sleep(2)
+def get_following(ID, Num):
+	Num = min(100, Num)
 	connection = Connection()
-	flag = 0
-	button_list = driver.find_elements_by_class_name("button")
-	for button in button_list:
-		if button.get_attribute("data-action-value") == "following":
-			button.click()
-			time.sleep(2)
-			flag = 1
-			break
-	if flag == 0:
-		return connection
-	size=0
-	cnt=0
-	cnt2=0
-	while True:
-		if cnt2 > 10:
-			break
-		cnt2 = cnt2 + 1
-		print (cnt2)
-		if cnt2 % 10 == 0:
-			cnt = 0
-		flag = 0
-		button_list = driver.find_elements_by_class_name("button")
-		for button in button_list:
-			if button.get_attribute("data-action") == "load-more-follows":
-				try:
-					button.click()
-				except:
-					break
-				time.sleep(1)
-				flag = 1
-				break
-		if flag == 0:
-			cnt = cnt + 1
-			if cnt > 1:
-				break
-		following_list = driver.find_elements_by_class_name("link")
-		if(len(following_list) > size):
-			size = len(following_list)
-		else:
-			cnt = cnt + 1
-			if cnt > 1:
-				break
-	cnt = 0
-	for fol in following_list:
-		if fol.get_attribute("data-action") == "show-user-card":
-			cnt = cnt + 1
-			if cnt % 2 == 1:
-				if str(fol.get_attribute("href"))[20:] != str(ID):
-					connection.following = connection.following + [str(fol.get_attribute("href"))[20:]]
+	cj = cookielib.MozillaCookieJar()
+	opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
+	for i in range(0, Num):
+		url = "https://medium.com/@" + str(ID) + "/follow-list?listType=following&page=" + str(i)
+		req = urllib2.Request(url)
+		req.add_header("User-agent", 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2657.0 Safari/537.36')
+		req.add_header("authority", "medium.com")
+		req.add_header("method", "GET")
+		req.add_header("path", "/@" + str(ID) + "/follow-list?listType=following&page=" + str(i))
+		req.add_header("scheme", "https")
+		req.add_header("accept", "application/json")
+		req.add_header("accept-language", "en-US,en;q=0.8,zh-CN;q=0.6,zh;q=0.4")
+		req.add_header("content-type", "application/json")
+		req.add_header("referer", "https://medium.com/@" + str(ID))
+		req.add_header("x-obvious-cid", "web")
+		req.add_header("x-xsrf-token", 1)
+		response = opener.open(req, timeout=10)
+		data = response.read()
+		List = re.findall('"username":"(.*?)"', data, re.S)
+		connection.following = connection.following + List
+
 	connection.following = set(connection.following)
 	return connection
+
