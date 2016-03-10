@@ -3,6 +3,7 @@ import json
 import codecs
 import os
 import random
+import time
 import medium_u_crawler_main
 
 def BFS():
@@ -21,7 +22,8 @@ def BFS():
 			queue.add(q)
 	queue_input.close()
 	while 1:
-		if (len(visited)-1) % 100 == 0:
+		if (len(visited)-1) % 30 == 0:
+			time.sleep(random.randint(4,7))
 			queue_output = codecs.open("./Queue.txt", 'w', 'utf-8')
 			for q in queue:
 				queue_output.write(str(q) + " ")
@@ -36,6 +38,7 @@ def BFS():
 		status_output.close()
 		print ("%s users have been visited"%(len(visited)-1))
 		print ("%s users are in the Queue"%(len(queue)))
+		time.sleep(random.randint(1, 5))
 		current = queue.pop()
 		if (current == "") or (current in visited):
 			continue

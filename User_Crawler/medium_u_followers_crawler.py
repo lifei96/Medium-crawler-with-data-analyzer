@@ -29,6 +29,8 @@ def get_followers(ID, Num):
 	cj = cookielib.MozillaCookieJar()
 	opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
 	for i in range(0, Num):
+		if (i+1)%30 == 0:
+			time.sleep(random.randint(1,2))
 		print i
 		url = "https://medium.com/@" + str(ID) + "/follow-list?listType=followers&page=" + str(i)
 		req = urllib2.Request(url)

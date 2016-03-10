@@ -37,6 +37,7 @@ def get_profile(ID):
 	user = User()
 	user.data['ID'] = str(ID)
 
+	time.sleep(random.randint(2, 3))
 	cj = cookielib.MozillaCookieJar()
 	opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
 		  

@@ -7,12 +7,17 @@ import random
 import medium_u_profile_crawler
 import medium_u_following_crawler
 import medium_u_followers_crawler
+import medium_u_profile_crawler_s
 
 def get(ID):
 	print (ID)
 	try:
 		time.sleep(random.randint(2, 3))
-		profile_str = medium_u_profile_crawler.get_profile(ID).getstr()
+		try:
+			profile_str = medium_u_profile_crawler.get_profile(ID).getstr()
+		except:
+			print("-----!")
+			profile_str = medium_u_profile_crawler_s.get_profile(ID).getstr()
 		out = codecs.open("./Data/%s_profile.txt"%str(ID), 'w', 'utf-8')
 		out.write(profile_str + "\n")
 		out.close()
