@@ -24,11 +24,12 @@ class Connection(object):
 		return result
 
 def get_followers(ID, Num):
-	Num = min(100, Num)
+	Num = min(10000, Num)
 	connection = Connection()
 	cj = cookielib.MozillaCookieJar()
 	opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
 	for i in range(0, Num):
+		print i
 		url = "https://medium.com/@" + str(ID) + "/follow-list?listType=followers&page=" + str(i)
 		req = urllib2.Request(url)
 		req.add_header("User-agent", 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2657.0 Safari/537.36')

@@ -4,7 +4,7 @@ import os
 import medium_u_analyser_random
 
 for i in range(1, 100):
-	Str = "No.%d"%i + medium_u_analyser_random.Get(5)
+	Str = "No.%d\n"%i + medium_u_analyser_random.Get(1020)
 	Result_output = codecs.open("./Result_analyser_random.txt", 'a+', 'utf-8')
 	Result_output.write(Str)
 	Result_output.close()

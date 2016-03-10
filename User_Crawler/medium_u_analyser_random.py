@@ -32,7 +32,7 @@ def Get(num):
 		ID_profile_list.append(ID_profile)
 		ID_input.close()
 	Size = len(ID_profile_list)
-	Result += "Number of users: %d"%Size
+	Result += "Number of users: %d\n"%Size
 	#Only Twitter
 	sum_Description = 0
 	sum_Following = 0
@@ -112,6 +112,6 @@ def Get(num):
 		Result +=  format(sum_Description/Sum, '.2%')
 		Result +=  " Following_Avg: %.2f"%(sum_Following/Sum)
 		Result +=  " Followers_Avg: %.2f"%(sum_Followers/Sum)
-	Result += "\n"
+	Result += "\n\n"
 	return Result
 

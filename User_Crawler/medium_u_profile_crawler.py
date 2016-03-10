@@ -1,7 +1,12 @@
 # encoding: utf-8
 import random
 import time
-from selenium import webdriver
+import json
+import codecs
+import urllib2
+import cookielib
+import HTMLParser
+import re
 
 class User(object):
 	def __init__(self):
@@ -27,23 +32,49 @@ class User(object):
 		+ '    \"Facebook_ID\": \"' + str(self.data['Facebook_ID']) + "\"\n}"
 		return result
 
-def get_profile(ID, driver):
+def get_profile(ID):
 	url = "https://medium.com/@" + str(ID)
-	driver.get(url)
-	time.sleep(2)
 	user = User()
-	user.data['ID'] = ID
-	user.data['Name'] = driver.find_element_by_class_name("hero-title").text
-	if driver.find_element_by_class_name("hero-description ") != -1:
-		user.data['Description'] = driver.find_element_by_class_name("hero-description ").text
-	button_list = driver.find_elements_by_class_name("button")
-	for button in button_list:
-		if button.get_attribute("data-action-value") == "following":
-			user.data['Following'] = int(filter(str.isdigit, str(button.get_attribute("title"))))
-		if button.get_attribute("data-action-value") == "followers":
-			user.data['Followers'] = int(filter(str.isdigit, str(button.get_attribute("title"))))
-		if button.get_attribute("title") == "Twitter":
-			user.data['Twitter_ID'] = str(button.get_attribute("href"))[20:]
-		if button.get_attribute("title") == "Facebook":
-			user.data['Facebook_ID'] = str(button.get_attribute("href"))[21:]
+	user.data['ID'] = str(ID)
+
+	cj = cookielib.MozillaCookieJar()
+	opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
+		  
+	req = urllib2.Request(url)
+	req.add_header("User-agent", 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2657.0 Safari/537.36')
+	response = opener.open(req, timeout=10) 
+	data = response.read()
+
+	user.data['Name'] = re.findall('title="Go to the profile of (.*?)"', data, re.S)[0]
+
+	user.data['Description'] = re.findall('"hero-description ">(.*?)</p>', data, re.S)[0]
+
+	following = re.findall('title="Show (.*?) people following"', data, re.S)
+	if len(following)>0:
+		    following = int(filter(str.isdigit, str(following[0])))
+	else:
+		    following = 0
+	user.data['Following'] = following
+
+	followers = re.findall('title="Show (\S+) followers"', data, re.S)
+	if len(followers)>0:
+		    followers = int(filter(str.isdigit, str(followers[0])))
+	else:
+		    followers = 0
+	user.data['Followers'] = followers
+
+	T = re.findall('twitter.com/(.*?)"', data, re.S)
+	if len(T)>0:
+		    T = T[0]
+	else:
+		    T = -1
+	user.data['Twitter_ID'] = T
+
+	F = re.findall('facebook.com/(.*?)"', data, re.S)
+	if len(F)>0:
+		    F = F[0]
+	else:
+		    F = -1
+	user.data['Facebook_ID'] = F
+
 	return user
