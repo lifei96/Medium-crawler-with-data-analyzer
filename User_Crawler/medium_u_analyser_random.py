@@ -30,7 +30,8 @@ def Get(num):
 	ID_profile_list = []
 	for ID in ID_random_list:
 		ID_input = open('./Data/%s_profile.txt'%str(ID), 'r')
-		ID_profile = json.load(ID_input)
+		ID_str = ID_input.read()
+		ID_profile = json.loads(str(ID_str))
 		ID_profile_list.append(ID_profile)
 		ID_input.close()
 	Size = len(ID_profile_list)

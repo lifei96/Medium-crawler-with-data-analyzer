@@ -9,7 +9,6 @@ import medium_u_profile_crawler_s
 def get(ID):
 	print (ID)
 	try:
-		time.sleep(random.randint(2, 3))
 		profile_str = medium_u_profile_crawler.get_profile(ID).getstr()
 	except:
 		try:
