@@ -4,19 +4,19 @@ import codecs
 import os
 import random
 import medium_u_profile_crawler
-from selenium import webdriver
+import medium_u_profile_crawler_s
 
 def get(ID):
-	driver = webdriver.Firefox()
 	print (ID)
 	try:
 		time.sleep(random.randint(2, 3))
-		profile_str = medium_u_profile_crawler.get_profile(ID, driver).getstr()
-		out = codecs.open("./Data/%s_profile.txt"%str(ID), 'w', 'utf-8')
-		out.write(profile_str + "\n")
-		out.close()
-		print("-----profile obtained")
+		profile_str = medium_u_profile_crawler.get_profile(ID).getstr()
 	except:
-		driver.quit()
-		raise
-	driver.quit()
+		try:
+			profile_str = medium_u_profile_crawler_s.get_profile(ID).getstr()
+		except:
+			raise
+	out = codecs.open("./Data/%s_profile.txt"%str(ID), 'w', 'utf-8')
+	out.write(profile_str + "\n")
+	out.close()
+	print("-----profile obtained")

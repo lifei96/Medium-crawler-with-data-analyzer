@@ -11,20 +11,22 @@ def Get(num):
 	Result = ""
 	ID_list_input = codecs.open("./ID_list.txt", 'r', 'utf-8')
 	ID_list = (str(ID_list_input.read()).replace('\n','')).split(' ')
-	ID_random_list = random.sample(ID_list, num)
+	ID_list = list(set(ID_list))
+	random.shuffle(ID_list)
 	ID_list_input.close()
-	ID_random_list_remove = []
 	cnt = 0
-	for ID in ID_random_list:
-		cnt += 1
-		print cnt
+	ID_random_list = []
+	for ID in ID_list:
 		try:
 			medium_u_analyser_crawler.get(ID)
 		except:
-			print "-----failed"
-			ID_random_list_remove.append(ID)
-	for ID in ID_random_list_remove:
-		ID_random_list.remove(ID)
+			print("----------Failed")
+			continue
+		cnt += 1
+		print cnt
+		ID_random_list.append(ID)
+		if cnt >= num:
+			break
 	ID_profile_list = []
 	for ID in ID_random_list:
 		ID_input = open('./Data/%s_profile.txt'%str(ID), 'r')
