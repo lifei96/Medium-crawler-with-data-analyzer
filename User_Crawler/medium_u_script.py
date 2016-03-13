@@ -22,7 +22,7 @@ def BFS():
 			queue.add(q)
 	queue_input.close()
 	while 1:
-		if (len(visited)-1) % 30 == 0:
+		if (len(visited)-1) % 100 == 0:
 			time.sleep(random.randint(4,7))
 			queue_output = codecs.open("./Queue.txt", 'w', 'utf-8')
 			for q in queue:
@@ -40,6 +40,8 @@ def BFS():
 		print ("%s users are in the Queue"%(len(queue)))
 		time.sleep(random.randint(1, 5))
 		current = queue.pop()
+		if os.path.exists('./Data/%s_profile.txt'%str(current)):
+			visited.add(current)
 		if (current == "") or (current in visited):
 			continue
 		try:
