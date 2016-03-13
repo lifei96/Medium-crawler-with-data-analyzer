@@ -37,7 +37,7 @@ def get_profile(ID):
 	user.data['Name'] = driver.find_element_by_class_name("hero-title").text
 	if driver.find_element_by_class_name("hero-description ") != -1:
 		user.data['Description'] = driver.find_element_by_class_name("hero-description ").text
-		user.data['Description'] = user.data['Description'].replace('"','')
+		user.data['Description'] = user.data['Description'].replace('"','').replace('/','').replace('<','').replace('>','')
 	button_list = driver.find_elements_by_class_name("button")
 	for button in button_list:
 		if button.get_attribute("data-action-value") == "following":

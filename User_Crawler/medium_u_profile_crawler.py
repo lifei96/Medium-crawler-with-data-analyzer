@@ -49,7 +49,7 @@ def get_profile(ID):
 	user.data['Name'] = re.findall('title="Go to the profile of (.*?)"', data, re.S)[0]
 
 	user.data['Description'] = re.findall('"hero-description ">(.*?)</p>', data, re.S)[0]
-	user.data['Description'] = user.data['Description'].replace('"','')
+	user.data['Description'] = user.data['Description'].replace('"','').replace('/','').replace('<','').replace('>','')
 
 	following = re.findall('title="Show (.*?) people following"', data, re.S)
 	if len(following)>0:
