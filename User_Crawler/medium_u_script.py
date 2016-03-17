@@ -5,6 +5,7 @@ import os
 import random
 import time
 import medium_u_crawler_main
+import gc
 
 def BFS():
 	visited = []
@@ -14,6 +15,8 @@ def BFS():
 		visited.append(v)
 	visited_input.close()
 	visited = set(visited)
+	del visited_list
+	gc.collect()
 	queue_input = codecs.open("./Queue.txt", 'r', 'utf-8')
 	queue_list = (str(queue_input.read()).replace('\n','')).split(' ')
 	queue = set([])
@@ -21,6 +24,8 @@ def BFS():
 		if q not in visited:
 			queue.add(q)
 	queue_input.close()
+	del queue_list
+	gc.collect()
 	while 1:
 		if (len(visited)-1) % 100 == 0:
 			time.sleep(random.randint(4,7))
@@ -54,10 +59,14 @@ def BFS():
 		input_text = codecs.open("./Data/%s_following.txt"%str(current), 'r', 'utf-8')
 		following = (str(input_text.read()).replace('\n', '').replace('"', '').replace(' ', '').replace("{following_ID:[", "").replace("]}", "")).split(',')
 		queue.update(following)
+		del following
+		gc.collect()
 		input_text.close()
 		input_text = codecs.open("./Data/%s_followers.txt"%str(current), 'r', 'utf-8')
 		followers = (str(input_text.read()).replace('\n', '').replace('"', '').replace(' ', '').replace("{followers_ID:[", "").replace("]}", "")).split(',')
 		queue.update(followers)
+		del followers
+		gc.collect()
 		input_text.close()
 
 BFS()
