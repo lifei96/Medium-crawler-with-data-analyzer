@@ -19,6 +19,8 @@ class User(object):
             'Followers' : 0,#被关注数量
             'Twitter_ID' : -1,#Twitter帐号
             'Facebook_ID' : -1,#Facebook帐号
+            'Avatar' : "",#头像
+            'Publications': 0,#是否有文章
         }
     
     def getstr(self):
@@ -29,7 +31,9 @@ class User(object):
         + '    \"Following\": ' + str(self.data['Following']) + ",\n"\
         + '    \"Followers\": ' + str(self.data['Followers']) + ",\n"\
         + '    \"Twitter_ID\": \"' + str(self.data['Twitter_ID']) + "\",\n"\
-        + '    \"Facebook_ID\": \"' + str(self.data['Facebook_ID']) + "\"\n}"
+        + '    \"Facebook_ID\": \"' + str(self.data['Facebook_ID']) + "\",\n"\
+        + '    \"Avatar\": \"' + str(self.data['Avatar']) + "\",\n"\
+        + '    \"Publications\": \"' + str(self.data['Publications']) + "\"\n}"
         return result
 
 def get_profile(ID):
@@ -48,7 +52,9 @@ def get_profile(ID):
 
     user.data['Name'] = re.findall('title="Go to the profile of (.*?)"', data, re.S)[0]
 
-    user.data['Description'] = re.findall('"hero-description ">(.*?)</p>', data, re.S)[0]
+    D = re.findall('"hero-description ">(.*?)</p>', data, re.S)
+    if len(D)>0:
+        user.data['Description'] = D[0]
     user.data['Description'] = user.data['Description'].replace('"','').replace('/','').replace('<','').replace('>','')
 
     following = re.findall('title="Show (.*?) people following"', data, re.S)
@@ -78,5 +84,15 @@ def get_profile(ID):
     else:
             F = -1
     user.data['Facebook_ID'] = F
+
+    A = re.findall('<div class="avatar"><img src="(.*?)" class="avatar-image', data, re.S)
+    if A[0]!='https://cdn-images-1.medium.com/fit/c/100/100/1*dmbNkD5D-u45r44go_cf0g.png' and A[0]!='https://cdn-static-1.medium.com/_/fp/img/default-avatar.dmbNkD5D-u45r44go_cf0g.png':
+        user.data['Avatar'] = A[0]
+    
+    P = re.findall('"lastPostCreatedAt":(.*?),"imageId"', data, re.S)
+    if P[0] == '0':
+        user.data['Publications'] = 0;
+    else:
+        user.data['Publications'] = 1;
 
     return user
