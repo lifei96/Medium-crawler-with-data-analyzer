@@ -52,7 +52,13 @@ def get_profile(ID):
     response = opener.open(req, timeout=10) 
     data = response.read()
 
-    user.data['Name'] = re.findall('nameWithBadges--1\n">(.*?)</a>', data, re.S)[0]
+    N = re.findall('ProfileHeaderCard-nameLink u-textInheritColor js-nav\n">(.*?)</a>', data, re.S)
+    if len(N)>0:
+        user.data['Name'] = N[0]
+    
+    N = re.findall('nameWithBadges--1\n">(.*?)</a>', data, re.S)
+    if len(N)>0:
+        user.data['Name'] = N[0]
     
     D = re.findall('<p class="ProfileHeaderCard-bio u-dir"\n      \n      dir="ltr">(.*?)</p>', data, re.S)
     if len(D)>0:
@@ -87,5 +93,4 @@ def get_profile(ID):
         user.data['Avatar'] = A[0]
     
     return user
-    
-print get_profile("LCFC").getstr()
+
