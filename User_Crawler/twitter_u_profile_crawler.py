@@ -62,11 +62,11 @@ def get_profile(ID):
     
     D = re.findall('<p class="ProfileHeaderCard-bio u-dir"\n      \n      dir="ltr">(.*?)</p>', data, re.S)
     if len(D)>0:
-        user.data['Description'] = D[0].replace('"','').replace('/','').replace('<','').replace('>','')
+        user.data['Description'] = D[0].replace('"','').replace('/','').replace('<','').replace('>','').replace('\r\n', '')
     
     L = re.findall('ProfileHeaderCard-locationText u-dir" dir="ltr">\n            (.*?)\n        </span>', data, re.S)
     if len(L)>0:
-        user.data['Location'] = L[0].replace('"','').replace('/','').replace('<','').replace('>','')
+        user.data['Location'] = L[0].replace('"','').replace('/','').replace('<','').replace('>','').replace('\r\n', '')
     
     J = re.findall('ProfileHeaderCard-joinDateText js-tooltip u-dir" dir="ltr" title="(.*?)">', data, re.S)
     if len(J)>0:

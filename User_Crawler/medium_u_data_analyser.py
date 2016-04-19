@@ -22,7 +22,8 @@ def Get(Lim):
     ID_visited_input = codecs.open("./ID_visited.txt", 'r', 'utf-8')
     ID_v = (str(ID_visited_input.read()).replace('\n','')).split(' ')
     ID_v = list(set(ID_v))
-    random.shuffle(ID_v)
+    for i in range(5):
+        random.shuffle(ID_v)
     ID_visited_input.close()
     Num = 0
     for ID in ID_v:
