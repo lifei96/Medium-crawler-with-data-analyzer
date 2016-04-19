@@ -98,7 +98,10 @@ def Get(Lim):
             continue
         Num = Num + 1
         if Num >= Lim:
+            print(Num)
+            print(Lim)
             break
+    
     Result = 'Number of users: %d\n'%Num
     for i in range(4):
         if i == 0:
@@ -127,4 +130,4 @@ def Get(Lim):
     out.write(Result + "\n")
     out.close()
 
-Get(5000)
+Get(300)
