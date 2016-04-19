@@ -10,7 +10,7 @@ import twitter_u_profile_crawler
 def get(ID):
     print (ID)
     try:
-        time.sleep(random.randint(2, 3))
+        time.sleep(random.randint(1, 2))
         try:
             profile_str = medium_u_profile_crawler.get_profile(ID).getstr()
         except:
