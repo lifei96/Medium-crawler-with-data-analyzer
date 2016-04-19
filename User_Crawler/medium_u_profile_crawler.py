@@ -3,10 +3,12 @@ import random
 import time
 import json
 import codecs
+import urllib
 import urllib2
 import cookielib
 import HTMLParser
 import re
+import get_face_info
 
 class User(object):
     def __init__(self):
@@ -88,6 +90,11 @@ def get_profile(ID):
     A = re.findall('<div class="avatar"><img src="(.*?)" class="avatar-image', data, re.S)
     if A[0]!='https://cdn-images-1.medium.com/fit/c/100/100/1*dmbNkD5D-u45r44go_cf0g.png' and A[0]!='https://cdn-static-1.medium.com/_/fp/img/default-avatar.dmbNkD5D-u45r44go_cf0g.png':
         user.data['Avatar'] = A[0]
+        urllib.urlretrieve(A[0], "./Data/%s_avatar.jpeg"%str(ID))
+        face = get_face_info.get_face_info("./Data/%s_avatar.jpeg"%str(ID))
+        out = codecs.open("./Data/%s_face.txt"%str(ID), 'w', 'utf-8')
+        out.write(str(face) + "\n")
+        out.close()
     
     P = re.findall('"lastPostCreatedAt":(.*?),"imageId"', data, re.S)
     if P[0] == '0':

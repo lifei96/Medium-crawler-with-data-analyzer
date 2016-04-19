@@ -3,10 +3,12 @@ import random
 import time
 import json
 import codecs
+import urllib
 import urllib2
 import cookielib
 import HTMLParser
 import re
+import get_face_info
 
 class User(object):
     def __init__(self):
@@ -62,7 +64,7 @@ def get_profile(ID):
     
     D = re.findall('<p class="ProfileHeaderCard-bio u-dir"\n      \n      dir="ltr">(.*?)</p>', data, re.S)
     if len(D)>0:
-        user.data['Description'] = D[0].replace('"','').replace('/','').replace('<','').replace('>','').replace('\r\n', '')
+        user.data['Description'] = D[0].replace('"','').replace('/','').replace('<','').replace('>','').replace('\r\n', '').replace('\r', '').replace('\n', '')
     
     L = re.findall('ProfileHeaderCard-locationText u-dir" dir="ltr">\n            (.*?)\n        </span>', data, re.S)
     if len(L)>0:
@@ -91,6 +93,11 @@ def get_profile(ID):
     A = re.findall('<img class="ProfileAvatar-image " src="(.*?)" alt=', data, re.S)
     if len(A)>0:
         user.data['Avatar'] = A[0]
+        urllib.urlretrieve(A[0], "./Data/%s_avatar_t.jpg"%str(ID))
+        face = get_face_info.get_face_info("./Data/%s_avatar_t.jpg"%str(ID))
+        out = codecs.open("./Data/%s_face_t.txt"%str(ID), 'w', 'utf-8')
+        out.write(str(face) + "\n")
+        out.close()
     
     return user
 
