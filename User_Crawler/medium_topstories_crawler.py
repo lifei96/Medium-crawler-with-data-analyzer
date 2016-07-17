@@ -45,7 +45,11 @@ def get_story(url):
     req = urllib2.Request(url)
     req.add_header("User-agent",'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) \
                     Chrome/50.0.2661.102 Safari/537.36')
-    response = opener.open(req, timeout=10)
+    try:
+        response = opener.open(req, timeout=10)
+    except urllib2.URLError:
+        print('timeout')
+        return story
     data = response.read()
 
     story_id = re.findall('data-post-id="(.*?)" data-is-icon', data)
@@ -110,7 +114,7 @@ def get_top_stories():
         data = response.read()
 
         stories = []
-        story_url = re.findall('"postArticle-content"><a href="(.*?)\?source=top_stories---------[0-9]*-"><', data)
+        story_url = re.findall('<a class="link link--darken" href="(.*?)\?source=top_stories---------[0-9]*-" data-action="open-post"', data)
         num = len(story_url)
         for i in range(num):
             stories.append(get_story(story_url[i]).data)
