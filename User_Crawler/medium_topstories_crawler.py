@@ -68,7 +68,6 @@ def get_story(url):
         story.data['date'] = datetime.date.fromtimestamp(story.data['timestamp']/1000.0).isoformat()
 
     tags = re.findall('false,"tags":(.*?),"socialRecommendsCount"', data)
-    print(tags[0])
     if not tags:
         print('-----fail to get tags')
     else:
@@ -115,6 +114,7 @@ def get_top_stories():
         num = len(story_url)
         for i in range(num):
             stories.append(get_story(story_url[i]).data)
+            print(i)
         top_stories.data['num'] = num
         top_stories.data['stories'] = stories
 
