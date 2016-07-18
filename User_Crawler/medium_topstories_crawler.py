@@ -30,7 +30,7 @@ class Story(object):
             'story_id': "",
             'author': "",
             'timestamp': 0,
-            'date': "",
+            'published_date': "",
             'tags': [],
             'recommends': 0,
             'responses': 0,
@@ -73,7 +73,7 @@ def get_story(url):
         print('-----fail to get timestamp')
     else:
         story.data['timestamp'] = float(timestamp[0])
-        story.data['date'] = datetime.date.fromtimestamp(story.data['timestamp']/1000.0).isoformat()
+        story.data['published_date'] = datetime.date.fromtimestamp(story.data['timestamp']/1000.0).isoformat()
 
     tags = re.findall('false,"tags":(.*?),"socialRecommendsCount"', data)
     if not tags:
