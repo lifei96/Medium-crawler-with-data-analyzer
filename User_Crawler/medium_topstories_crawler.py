@@ -130,7 +130,7 @@ def get_top_stories():
             print(i)
         top_stories.data['stories'] = stories
 
-        out = codecs.open("./TopStories/%s.txt" % current_date.isoformat(), 'w', 'utf-8')
+        out = codecs.open("./TopStories/%s.json" % current_date.isoformat(), 'w', 'utf-8')
         out.write(top_stories.getstr())
         out.close()
         print("-----%s obtained" % current_date.isoformat())
