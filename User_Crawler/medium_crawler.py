@@ -60,14 +60,14 @@ def get_story(post_id):
         response = opener.open(req, timeout=10)
     except urllib2.URLError:
         story.data['success'] = 0
-        print('timeout')
+        print('----------timeout')
         return story
     data = response.read()
 
     story_id = re.findall('data-post-id="(.*?)" data-is-icon', data)
     if not story_id:
         story.data['success'] = 0
-        print('-----fail to get story_id')
+        print('----------fail to get story_id')
         return story
     else:
         story.data['story_id'] = story_id[0]
@@ -75,7 +75,7 @@ def get_story(post_id):
     author = re.findall('"username":"(.*?)","createdAt"', data)
     if not author:
         story.data['success'] = 0
-        print('-----fail to get author')
+        print('----------fail to get author')
         return story
     else:
         story.data['author'] = author[0]
@@ -83,7 +83,7 @@ def get_story(post_id):
     timestamp = re.findall('"firstPublishedAt":(.*?),"latestPublishedAt"', data)
     if not timestamp:
         story.data['success'] = 0
-        print('-----fail to get timestamp')
+        print('----------fail to get timestamp')
         return story
     else:
         story.data['timestamp'] = float(timestamp[0])
@@ -94,11 +94,18 @@ def get_story(post_id):
         story.data['collection'] = {}
     else:
         story.data['collection'] = json.loads(collection[0])
+        story.data['collection'].pop("sections", None)
+        story.data['collection'].pop("virtuals", None)
+        story.data['collection'].pop("colorPalette", None)
+        story.data['collection'].pop("highlightSpectrum", None)
+        story.data['collection'].pop("defaultBackgroundSpectrum", None)
+        story.data['collection'].pop("navItems", None)
+        story.data['collection'].pop("ampLogo", None)
 
     tags = re.findall('false,"tags":(.*?),"socialRecommendsCount"', data)
     if not tags:
         story.data['success'] = 0
-        print('-----fail to get tags')
+        print('----------fail to get tags')
         return story
     else:
         story.data['tags'] = json.loads(tags[0])
@@ -106,7 +113,7 @@ def get_story(post_id):
     recommends = re.findall('"recommends":(.*?),"socialRecommends"', data)
     if not recommends:
         story.data['success'] = 0
-        print('-----fail to get recommends')
+        print('----------fail to get recommends')
         return story
     else:
         story.data['recommends'] = eval(recommends[0])
@@ -114,7 +121,7 @@ def get_story(post_id):
     responses = re.findall('"responsesCreatedCount":(.*?),"links"', data)
     if not responses:
         story.data['success'] = 0
-        print('-----fail to get responses')
+        print('----------fail to get responses')
         return story
     else:
         story.data['responses'] = eval(responses[0])
@@ -245,10 +252,8 @@ def get_highlights(user_id):
                     Chrome/50.0.2661.102 Safari/537.36')
     response = opener.open(req, timeout=10)
     data = response.read()
-    highlights = re.findall('{"Quote":(.*?)"type":"Quote"}}', data)
-    if not highlights:
-        return {}
-    highlights_dict = dict(highlights[0] + '"type":"Quote"}}')
+    highlights = re.findall('","postId":"(.*?)","userId":"', data)
+    highlights_set = set(highlights)
     to = re.findall('"to":"(.*?)","source":"quotes"', data)
     while to:
         url = 'https://medium.com/_/api/users/' + user_id + '/profile/stream?source=quotes&to=' + to[0]
@@ -259,12 +264,10 @@ def get_highlights(user_id):
                         Chrome/50.0.2661.102 Safari/537.36')
         response = opener.open(req, timeout=10)
         data = response.read()
-        highlights = re.findall('{"Quote":(.*?)"type":"Quote"}}', data)
-        if not highlights:
-            break
-        highlights_dict = highlights_dict.update(dict(highlights[0] + '"type":"Quote"}}'))
+        highlights = re.findall('","postId":"(.*?)","userId":"', data)
+        highlights_set.update(highlights)
         to = re.findall('"to":"(.*?)","source":"quotes"', data)
-    return highlights_dict
+    return list(highlights_set)
 
 
 def get_responses(user_id):
@@ -299,10 +302,7 @@ def post_exist(post):
 
 
 def get_posts(user):
-    post_list = user.data['latest'] + user.data['recommends'] + user.data['responses']
-    highlights = user.data['highlights'].values()
-    for quote in highlights:
-        post_list.append(quote['postId'])
+    post_list = user.data['latest'] + user.data['recommends'] + user.data['highlights'] + user.data['responses']
     post_list = list(set(post_list))
     for post in post_list:
         if not post_exist(post):
@@ -380,7 +380,7 @@ def get_user(username):
         print('-----highlights')
     except:
         print('-----fail to get highlights')
-        return
+        raise
 
     try:
         user.data['responses'] = get_responses(user_id)
@@ -389,13 +389,18 @@ def get_user(username):
         print('-----fail to get responses')
         return
 
+    out = codecs.open("./Users/%s.json" % username, 'w', 'utf-8')
+    out.write(user.getstr())
+    out.close()
+
     try:
         get_posts(user)
         print('-----posts')
     except:
         print('-----fail to get posts')
 
-    out = codecs.open("./Users/%s.json" % username, 'w', 'utf-8')
-    out.write(user.getstr())
-    out.close()
     print("-----%s obtained" % username)
+
+
+if __name__ == '__main__':
+    get_user('lifei9696')
