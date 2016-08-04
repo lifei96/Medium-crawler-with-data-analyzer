@@ -153,8 +153,7 @@ def get_following(user_id):
         cj = cookielib.MozillaCookieJar()
         opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
         req = urllib2.Request(url)
-        req.add_header("User-agent", 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) \
-                        Chrome/50.0.2661.102 Safari/537.36')
+        req.add_header("User-agent", variable.user_agent[random.randint(0, 35)])
         response = opener.open(req, timeout=10)
         data = response.read()
         following = re.findall('"username":"(.*?)","createdAt"', data)
@@ -179,8 +178,7 @@ def get_followers(user_id):
         cj = cookielib.MozillaCookieJar()
         opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
         req = urllib2.Request(url)
-        req.add_header("User-agent", 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) \
-                        Chrome/50.0.2661.102 Safari/537.36')
+        req.add_header("User-agent", variable.user_agent[random.randint(0, 35)])
         response = opener.open(req, timeout=10)
         data = response.read()
         followers = re.findall('"username":"(.*?)","createdAt"', data)
@@ -205,8 +203,7 @@ def get_latest(user_id):
         cj = cookielib.MozillaCookieJar()
         opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
         req = urllib2.Request(url)
-        req.add_header("User-agent", 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) \
-                        Chrome/50.0.2661.102 Safari/537.36')
+        req.add_header("User-agent", variable.user_agent[random.randint(0, 35)])
         response = opener.open(req, timeout=10)
         data = response.read()
         latest = re.findall('"postId":"(.*?)"},"randomId"', data)
@@ -231,8 +228,7 @@ def get_recommends(user_id):
         cj = cookielib.MozillaCookieJar()
         opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
         req = urllib2.Request(url)
-        req.add_header("User-agent", 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) \
-                        Chrome/50.0.2661.102 Safari/537.36')
+        req.add_header("User-agent", variable.user_agent[random.randint(0, 35)])
         response = opener.open(req, timeout=10)
         data = response.read()
         recommends = re.findall('w":{"postId":"(.*?)"},"randomId"', data)
@@ -257,8 +253,7 @@ def get_highlights(user_id):
         cj = cookielib.MozillaCookieJar()
         opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
         req = urllib2.Request(url)
-        req.add_header("User-agent", 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) \
-                        Chrome/50.0.2661.102 Safari/537.36')
+        req.add_header("User-agent", variable.user_agent[random.randint(0, 35)])
         response = opener.open(req, timeout=10)
         data = response.read()
         highlights = re.findall('","postId":"(.*?)","userId":"', data)
@@ -283,8 +278,7 @@ def get_responses(user_id):
         cj = cookielib.MozillaCookieJar()
         opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
         req = urllib2.Request(url)
-        req.add_header("User-agent", 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) \
-                        Chrome/50.0.2661.102 Safari/537.36')
+        req.add_header("User-agent", variable.user_agent[random.randint(0, 35)])
         response = opener.open(req, timeout=10)
         data = response.read()
         responses = re.findall('w":{"postId":"(.*?)"},"randomId"', data)
@@ -473,7 +467,9 @@ def get_queue(ip):
     conn.close()
     queue = []
     for user in result:
-        queue.append(user[0][0])
+        queue.append(user[0])
+    for i in range(5):
+        random.shuffle(queue)
     return queue
 
 
