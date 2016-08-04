@@ -7,8 +7,9 @@ import json
 import codecs
 import os
 import datetime
+import random
 import mysql.connector
-import slave
+import variable
 
 
 class User(object):
@@ -56,8 +57,7 @@ def get_story(post_id):
     cj = cookielib.MozillaCookieJar()
     opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
     req = urllib2.Request(url)
-    req.add_header("User-agent", 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) \
-                    Chrome/50.0.2661.102 Safari/537.36')
+    req.add_header("User-agent", variable.user_agent[random.randint(0, 35)])
     try:
         response = opener.open(req, timeout=10)
     except urllib2.URLError:
@@ -142,8 +142,7 @@ def get_following(user_id):
     cj = cookielib.MozillaCookieJar()
     opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
     req = urllib2.Request(url)
-    req.add_header("User-agent", 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) \
-                    Chrome/50.0.2661.102 Safari/537.36')
+    req.add_header("User-agent", variable.user_agent[random.randint(0, 35)])
     response = opener.open(req, timeout=10)
     data = response.read()
     following = re.findall('"username":"(.*?)","createdAt"', data)
@@ -169,8 +168,7 @@ def get_followers(user_id):
     cj = cookielib.MozillaCookieJar()
     opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
     req = urllib2.Request(url)
-    req.add_header("User-agent", 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) \
-                    Chrome/50.0.2661.102 Safari/537.36')
+    req.add_header("User-agent", variable.user_agent[random.randint(0, 35)])
     response = opener.open(req, timeout=10)
     data = response.read()
     followers = re.findall('"username":"(.*?)","createdAt"', data)
@@ -196,8 +194,7 @@ def get_latest(user_id):
     cj = cookielib.MozillaCookieJar()
     opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
     req = urllib2.Request(url)
-    req.add_header("User-agent", 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) \
-                    Chrome/50.0.2661.102 Safari/537.36')
+    req.add_header("User-agent", variable.user_agent[random.randint(0, 35)])
     response = opener.open(req, timeout=10)
     data = response.read()
     latest = re.findall('"postId":"(.*?)"},"randomId"', data)
@@ -223,8 +220,7 @@ def get_recommends(user_id):
     cj = cookielib.MozillaCookieJar()
     opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
     req = urllib2.Request(url)
-    req.add_header("User-agent", 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) \
-                    Chrome/50.0.2661.102 Safari/537.36')
+    req.add_header("User-agent", variable.user_agent[random.randint(0, 35)])
     response = opener.open(req, timeout=10)
     data = response.read()
     recommends = re.findall('w":{"postId":"(.*?)"},"randomId"', data)
@@ -250,8 +246,7 @@ def get_highlights(user_id):
     cj = cookielib.MozillaCookieJar()
     opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
     req = urllib2.Request(url)
-    req.add_header("User-agent", 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) \
-                    Chrome/50.0.2661.102 Safari/537.36')
+    req.add_header("User-agent", variable.user_agent[random.randint(0, 35)])
     response = opener.open(req, timeout=10)
     data = response.read()
     highlights = re.findall('","postId":"(.*?)","userId":"', data)
@@ -277,8 +272,7 @@ def get_responses(user_id):
     cj = cookielib.MozillaCookieJar()
     opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
     req = urllib2.Request(url)
-    req.add_header("User-agent", 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) \
-                    Chrome/50.0.2661.102 Safari/537.36')
+    req.add_header("User-agent", variable.user_agent[random.randint(0, 35)])
     response = opener.open(req, timeout=10)
     data = response.read()
     responses = re.findall('w":{"postId":"(.*?)"},"randomId"', data)
@@ -299,8 +293,43 @@ def get_responses(user_id):
     return list(responses_set)
 
 
+def mark_visited(username):
+    conn = mysql.connector.connect(host=variable.host, port=3306, user=variable.username, password=variable.password,
+                                   database='Medium', charset='utf8')
+    cur = conn.cursor()
+    sql = "UPDATE users SET visited=1 WHERE username='%s'" % username
+    cur.execute(sql)
+    cur.close()
+    conn.commit()
+    conn.close()
+
+
+def mark_failed(username):
+    conn = mysql.connector.connect(host=variable.host, port=3306, user=variable.username, password=variable.password,
+                                   database='Medium', charset='utf8')
+    cur = conn.cursor()
+    sql = "UPDATE users SET failed=1 WHERE username='%s'" % username
+    cur.execute(sql)
+    cur.close()
+    conn.commit()
+    conn.close()
+
+
 def post_exist(post):
-    return False
+    conn = mysql.connector.connect(host=variable.host, port=3306, user=variable.username, password=variable.password,
+                                   database='Medium', charset='utf8')
+    cur = conn.cursor()
+    try:
+        sql = "INSERT INTO posts VALUE('%s')" % post
+        cur.execute(sql)
+        cur.close()
+        conn.commit()
+        conn.close()
+        return False
+    except:
+        cur.close()
+        conn.close()
+        return True
 
 
 def get_posts(user):
@@ -330,18 +359,19 @@ def get_user(username):
     cj = cookielib.MozillaCookieJar()
     opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
     req = urllib2.Request(url)
-    req.add_header("User-agent", 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) \
-                    Chrome/50.0.2661.102 Safari/537.36')
+    req.add_header("User-agent", variable.user_agent[random.randint(0, 35)])
     try:
         response = opener.open(req, timeout=10)
     except urllib2.URLError:
         print(username + ' timeout')
+        mark_failed(username)
         return
     data = response.read()
 
     profile = re.findall('"userMeta":(.*?)"UserMeta"}', data)
     if not profile:
         print('-----fail to get profile')
+        mark_failed(username)
         return
     else:
         user.data['profile'] = json.loads(profile[0]+'"UserMeta"}')
@@ -354,6 +384,7 @@ def get_user(username):
         print('-----following')
     except:
         print('-----fail to get following')
+        mark_failed(username)
         return
 
     try:
@@ -361,13 +392,37 @@ def get_user(username):
         print('-----followers')
     except:
         print('-----fail to get followers')
+        mark_failed(username)
         return
+
+    conn = mysql.connector.connect(host=variable.host, port=3306, user=variable.username, password=variable.password,
+                                   database='Medium', charset='utf8')
+    cur = conn.cursor()
+    for following in user.data['following']:
+        try:
+            sql = "INSERT INTO users VALUE('%s', %s, %s, '%s')" % (following, 0, 0, variable.ip)
+            cur.execute(sql)
+            conn.commit()
+            variable.queue.append(following)
+        except:
+            continue
+    for follower in user.data['followers']:
+        try:
+            sql = "INSERT INTO users VALUE('%s', %s, %s, '%s')" % (follower, 0, 0, variable.ip)
+            cur.execute(sql)
+            conn.commit()
+            variable.queue.append(follower)
+        except:
+            continue
+    cur.close()
+    conn.close()
 
     try:
         user.data['latest'] = get_latest(user_id)
         print('-----latest')
     except:
         print('-----fail to get latest')
+        mark_failed(username)
         return
 
     try:
@@ -375,6 +430,7 @@ def get_user(username):
         print('-----recommends')
     except:
         print('-----fail to get recommends')
+        mark_failed(username)
         raise
 
     try:
@@ -382,13 +438,15 @@ def get_user(username):
         print('-----highlights')
     except:
         print('-----fail to get highlights')
-        raise
+        mark_failed(username)
+        return
 
     try:
         user.data['responses'] = get_responses(user_id)
         print('-----responses')
     except:
         print('-----fail to get responses')
+        mark_failed(username)
         return
 
     out = codecs.open("./Users/%s.json" % username, 'w', 'utf-8')
@@ -405,7 +463,7 @@ def get_user(username):
 
 
 def get_queue(ip):
-    conn = mysql.connector.connect(host=secret.host, port=3306, user=secret.username, password=secret.password, database='Medium', charset='utf8')
+    conn = mysql.connector.connect(host=variable.host, port=3306, user=variable.username, password=variable.password, database='Medium', charset='utf8')
     cur = conn.cursor()
     sql = "SELECT username FROM users WHERE visited=0 and failed=0 and ip='%s'" % ip
     cur.execute(sql)
@@ -415,15 +473,20 @@ def get_queue(ip):
     conn.close()
     queue = []
     for user in result:
-        queue.append(user[0])
+        queue.append(user[0][0])
     return queue
 
 
-def BFS():
-    while slave.queue:
-
+def bfs():
+    while variable.queue:
+        username = variable.queue.pop(0)
+        mark_visited(username)
+        try:
+            get_user(username)
+        except:
+            mark_failed(username)
 
 
 if __name__ == '__main__':
-    slave.queue = get_queue(slave.ip)
-    BFS()
+    variable.queue = get_queue(variable.ip)
+    bfs()
