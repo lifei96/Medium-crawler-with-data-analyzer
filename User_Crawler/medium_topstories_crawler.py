@@ -136,6 +136,7 @@ def get_top_stories():
         print("-----%s obtained" % current_date.isoformat())
         current_date = current_date + datetime.timedelta(days=1)
 
+
 if __name__ == '__main__':
     if not os.path.exists('./TopStories'):
         os.mkdir('./TopStories')

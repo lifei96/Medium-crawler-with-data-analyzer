@@ -7,6 +7,8 @@ import json
 import codecs
 import os
 import datetime
+import mysql.connector
+import slave
 
 
 class User(object):
@@ -373,7 +375,7 @@ def get_user(username):
         print('-----recommends')
     except:
         print('-----fail to get recommends')
-        return
+        raise
 
     try:
         user.data['highlights'] = get_highlights(user_id)
@@ -402,5 +404,26 @@ def get_user(username):
     print("-----%s obtained" % username)
 
 
+def get_queue(ip):
+    conn = mysql.connector.connect(host=secret.host, port=3306, user=secret.username, password=secret.password, database='Medium', charset='utf8')
+    cur = conn.cursor()
+    sql = "SELECT username FROM users WHERE visited=0 and failed=0 and ip='%s'" % ip
+    cur.execute(sql)
+    result = cur.fetchall()
+    cur.close()
+    conn.commit()
+    conn.close()
+    queue = []
+    for user in result:
+        queue.append(user[0])
+    return queue
+
+
+def BFS():
+    while slave.queue:
+
+
+
 if __name__ == '__main__':
-    get_user('lifei9696')
+    slave.queue = get_queue(slave.ip)
+    BFS()
