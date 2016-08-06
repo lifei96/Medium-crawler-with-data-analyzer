@@ -53,14 +53,13 @@ class Story(object):
 
 
 def get_story(post_id):
-    time.sleep(2)
     url = 'https://medium.com/posts/' + post_id
     story = Story()
     cj = cookielib.MozillaCookieJar()
     opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
     req = urllib2.Request(url)
-    req.add_header("User-agent", variable.user_agent[random.randint(0, 35)])
-    req.add_header("Accept-Encoding", "UTF-8")
+    req.add_header("User-agent", 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) \
+                    Chrome/50.0.2661.102 Safari/537.36')
     try:
         response = opener.open(req, timeout=10)
     except urllib2.URLError:
@@ -141,27 +140,24 @@ def get_story(post_id):
 
 
 def get_following(user_id):
-    time.sleep(4)
     url = 'https://medium.com/_/api/users/' + user_id + '/following'
-    print(url)
     cj = cookielib.MozillaCookieJar()
     opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
     req = urllib2.Request(url)
-    req.add_header("User-agent", variable.user_agent[random.randint(0, 35)])
-    req.add_header("Accept-Encoding", "UTF-8")
+    req.add_header("User-agent", 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) \
+                    Chrome/50.0.2661.102 Safari/537.36')
     response = opener.open(req, timeout=10)
     data = response.read()
     following = re.findall('"username":"(.*?)","createdAt"', data)
     following_set = set(following)
     to = re.findall('"to":"(.*?)"}}},"v"', data)
     while to:
-        time.sleep(2)
         url = 'https://medium.com/_/api/users/' + user_id + '/following?to=' + to[0]
         cj = cookielib.MozillaCookieJar()
         opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
         req = urllib2.Request(url)
-        req.add_header("User-agent", variable.user_agent[random.randint(0, 35)])
-        req.add_header("Accept-Encoding", "UTF-8")
+        req.add_header("User-agent", 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) \
+                        Chrome/50.0.2661.102 Safari/537.36')
         response = opener.open(req, timeout=10)
         data = response.read()
         following = re.findall('"username":"(.*?)","createdAt"', data)
@@ -171,26 +167,24 @@ def get_following(user_id):
 
 
 def get_followers(user_id):
-    time.sleep(4)
     url = 'https://medium.com/_/api/users/' + user_id + '/followers'
     cj = cookielib.MozillaCookieJar()
     opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
     req = urllib2.Request(url)
-    req.add_header("User-agent", variable.user_agent[random.randint(0, 35)])
-    req.add_header("Accept-Encoding", "UTF-8")
+    req.add_header("User-agent", 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) \
+                    Chrome/50.0.2661.102 Safari/537.36')
     response = opener.open(req, timeout=10)
     data = response.read()
     followers = re.findall('"username":"(.*?)","createdAt"', data)
     followers_set = set(followers)
     to = re.findall('"to":"(.*?)"}}},"v"', data)
     while to:
-        time.sleep(2)
         url = 'https://medium.com/_/api/users/' + user_id + '/followers?to=' + to[0]
         cj = cookielib.MozillaCookieJar()
         opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
         req = urllib2.Request(url)
-        req.add_header("User-agent", variable.user_agent[random.randint(0, 35)])
-        req.add_header("Accept-Encoding", "UTF-8")
+        req.add_header("User-agent", 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) \
+                        Chrome/50.0.2661.102 Safari/537.36')
         response = opener.open(req, timeout=10)
         data = response.read()
         followers = re.findall('"username":"(.*?)","createdAt"', data)
@@ -200,26 +194,24 @@ def get_followers(user_id):
 
 
 def get_latest(user_id):
-    time.sleep(4)
     url = 'https://medium.com/_/api/users/' + user_id + '/profile/stream?source=latest'
     cj = cookielib.MozillaCookieJar()
     opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
     req = urllib2.Request(url)
-    req.add_header("User-agent", variable.user_agent[random.randint(0, 35)])
-    req.add_header("Accept-Encoding", "UTF-8")
+    req.add_header("User-agent", 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) \
+                    Chrome/50.0.2661.102 Safari/537.36')
     response = opener.open(req, timeout=10)
     data = response.read()
     latest = re.findall('"postId":"(.*?)"},"randomId"', data)
     latest_set = set(latest)
     to = re.findall('"to":"(.*?)","source":"latest"', data)
     while to:
-        time.sleep(2)
         url = 'https://medium.com/_/api/users/' + user_id + '/profile/stream?source=latest&to=' + to[0]
         cj = cookielib.MozillaCookieJar()
         opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
         req = urllib2.Request(url)
-        req.add_header("User-agent", variable.user_agent[random.randint(0, 35)])
-        req.add_header("Accept-Encoding", "UTF-8")
+        req.add_header("User-agent", 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) \
+                        Chrome/50.0.2661.102 Safari/537.36')
         response = opener.open(req, timeout=10)
         data = response.read()
         latest = re.findall('"postId":"(.*?)"},"randomId"', data)
@@ -229,26 +221,24 @@ def get_latest(user_id):
 
 
 def get_recommends(user_id):
-    time.sleep(4)
     url = 'https://medium.com/_/api/users/' + user_id + '/profile/stream?source=has-recommended'
     cj = cookielib.MozillaCookieJar()
     opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
     req = urllib2.Request(url)
-    req.add_header("User-agent", variable.user_agent[random.randint(0, 35)])
-    req.add_header("Accept-Encoding", "UTF-8")
+    req.add_header("User-agent", 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) \
+                    Chrome/50.0.2661.102 Safari/537.36')
     response = opener.open(req, timeout=10)
     data = response.read()
     recommends = re.findall('w":{"postId":"(.*?)"},"randomId"', data)
     recommends_set = set(recommends)
     to = re.findall('"to":"(.*?)","source":"has-recommended"', data)
     while to:
-        time.sleep(2)
         url = 'https://medium.com/_/api/users/' + user_id + '/profile/stream?source=has-recommended&to=' + to[0]
         cj = cookielib.MozillaCookieJar()
         opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
         req = urllib2.Request(url)
-        req.add_header("User-agent", variable.user_agent[random.randint(0, 35)])
-        req.add_header("Accept-Encoding", "UTF-8")
+        req.add_header("User-agent", 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) \
+                        Chrome/50.0.2661.102 Safari/537.36')
         response = opener.open(req, timeout=10)
         data = response.read()
         recommends = re.findall('w":{"postId":"(.*?)"},"randomId"', data)
@@ -258,26 +248,24 @@ def get_recommends(user_id):
 
 
 def get_highlights(user_id):
-    time.sleep(4)
     url = 'https://medium.com/_/api/users/' + user_id + '/profile/stream?source=quotes'
     cj = cookielib.MozillaCookieJar()
     opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
     req = urllib2.Request(url)
-    req.add_header("User-agent", variable.user_agent[random.randint(0, 35)])
-    req.add_header("Accept-Encoding", "UTF-8")
+    req.add_header("User-agent", 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) \
+                    Chrome/50.0.2661.102 Safari/537.36')
     response = opener.open(req, timeout=10)
     data = response.read()
     highlights = re.findall('","postId":"(.*?)","userId":"', data)
     highlights_set = set(highlights)
     to = re.findall('"to":"(.*?)","source":"quotes"', data)
     while to:
-        time.sleep(2)
         url = 'https://medium.com/_/api/users/' + user_id + '/profile/stream?source=quotes&to=' + to[0]
         cj = cookielib.MozillaCookieJar()
         opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
         req = urllib2.Request(url)
-        req.add_header("User-agent", variable.user_agent[random.randint(0, 35)])
-        req.add_header("Accept-Encoding", "UTF-8")
+        req.add_header("User-agent", 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) \
+                        Chrome/50.0.2661.102 Safari/537.36')
         response = opener.open(req, timeout=10)
         data = response.read()
         highlights = re.findall('","postId":"(.*?)","userId":"', data)
@@ -287,26 +275,24 @@ def get_highlights(user_id):
 
 
 def get_responses(user_id):
-    time.sleep(4)
     url = 'https://medium.com/_/api/users/' + user_id + '/profile/stream?source=responses'
     cj = cookielib.MozillaCookieJar()
     opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
     req = urllib2.Request(url)
-    req.add_header("User-agent", variable.user_agent[random.randint(0, 35)])
-    req.add_header("Accept-Encoding", "UTF-8")
+    req.add_header("User-agent", 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) \
+                    Chrome/50.0.2661.102 Safari/537.36')
     response = opener.open(req, timeout=10)
     data = response.read()
     responses = re.findall('w":{"postId":"(.*?)"},"randomId"', data)
     responses_set = set(responses)
     to = re.findall('"to":"(.*?)","source":"responses"', data)
     while to:
-        time.sleep(2)
         url = 'https://medium.com/_/api/users/' + user_id + '/profile/stream?source=responses&to=' + to[0]
         cj = cookielib.MozillaCookieJar()
         opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
         req = urllib2.Request(url)
-        req.add_header("User-agent", variable.user_agent[random.randint(0, 35)])
-        req.add_header("Accept-Encoding", "UTF-8")
+        req.add_header("User-agent", 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) \
+                        Chrome/50.0.2661.102 Safari/537.36')
         response = opener.open(req, timeout=10)
         data = response.read()
         responses = re.findall('w":{"postId":"(.*?)"},"randomId"', data)
@@ -382,8 +368,8 @@ def get_user(username):
     cj = cookielib.MozillaCookieJar()
     opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
     req = urllib2.Request(url)
-    req.add_header("User-agent", variable.user_agent[random.randint(0, 35)])
-    req.add_header("Accept-Encoding", "UTF-8")
+    req.add_header("User-agent", 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) \
+                    Chrome/50.0.2661.102 Safari/537.36')
     try:
         response = opener.open(req, timeout=10)
     except urllib2.URLError:
