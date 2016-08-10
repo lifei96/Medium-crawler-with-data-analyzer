@@ -328,7 +328,7 @@ def post_exist(post):
                                    database='Medium', charset='utf8')
     cur = conn.cursor()
     try:
-        sql = "INSERT INTO posts VALUE('%s')" % post
+        sql = "INSERT INTO posts VALUE('%s', 1, 0)" % post
         cur.execute(sql)
         cur.close()
         conn.commit()
@@ -338,6 +338,17 @@ def post_exist(post):
         cur.close()
         conn.close()
         return True
+
+
+def mark_failed_post(post):
+    conn = mysql.connector.connect(host=variable.host, port=3306, user=variable.username, password=variable.password,
+                                   database='Medium', charset='utf8')
+    cur = conn.cursor()
+    sql = "UPDATE posts SET failed=1 WHERE post_id='%s'" % post
+    cur.execute(sql)
+    cur.close()
+    conn.commit()
+    conn.close()
 
 
 def get_posts(user):
@@ -356,11 +367,83 @@ def get_posts(user):
             out.close()
 
 
+def get_twitter_profile(username, twitter_id):
+    url = "https://twitter.com/" + str(twitter_id) + "?lang=en"
+    cj = cookielib.MozillaCookieJar()
+    opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
+    req = urllib2.Request(url)
+    req.add_header("User-agent", 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) \
+                    Chrome/50.0.2661.102 Safari/537.36')
+    response = opener.open(req, timeout=10)
+    data = response.read()
+    profile_data = re.findall('class="json-data" value="(.*?)">', data)
+    profile = json.loads(profile_data[0].replace('&quot;', '"'))
+    profile.pop("promptbirdData", None)
+    profile.pop("wtfOptions", None)
+    profile.pop("typeaheadData", None)
+    profile.pop("dm", None)
+    profile.pop("initialState", None)
+    profile.pop("activeHashflags", None)
+    profile.pop("keyboardShortcuts", None)
+    profile.pop("deciders", None)
+    out = codecs.open("./Twitter/%s_t.json" % username, 'w', 'utf-8')
+    out.write(json.dumps(profile), indent=4)
+    out.close()
+
+
+def mark_visited_twitter(username, twitter_id):
+    conn = mysql.connector.connect(host=variable.host, port=3306, user=variable.username, password=variable.password,
+                                   database='Medium', charset='utf8')
+    cur = conn.cursor()
+    sql = "INSERT INTO twitter VALUE('%s', '%s', 1, 0)" % (username, twitter_id)
+    cur.execute(sql)
+    cur.close()
+    conn.commit()
+    conn.close()
+
+
+def mark_failed_twitter(username, twitter_id):
+    conn = mysql.connector.connect(host=variable.host, port=3306, user=variable.username, password=variable.password,
+                                   database='Medium', charset='utf8')
+    cur = conn.cursor()
+    sql = "UPDATE twitter SET failed=1 WHERE username='%s' and twitter_id='%s'" % (username, twitter_id)
+    cur.execute(sql)
+    cur.close()
+    conn.commit()
+    conn.close()
+
+
+def mark_visited_facebook(username, facebook_id):
+    conn = mysql.connector.connect(host=variable.host, port=3306, user=variable.username, password=variable.password,
+                                   database='Medium', charset='utf8')
+    cur = conn.cursor()
+    sql = "INSERT INTO facebook VALUE('%s', '%s', 0, 0)" % (username, facebook_id)
+    cur.execute(sql)
+    cur.close()
+    conn.commit()
+    conn.close()
+
+
+def mark_failed_facebook(username, facebook_id):
+    conn = mysql.connector.connect(host=variable.host, port=3306, user=variable.username, password=variable.password,
+                                   database='Medium', charset='utf8')
+    cur = conn.cursor()
+    sql = "UPDATE facebook SET failed=1 WHERE username='%s' and facebook_id='%s'" % (username, facebook_id)
+    cur.execute(sql)
+    cur.close()
+    conn.commit()
+    conn.close()
+
+
 def get_user(username):
     if not os.path.exists('./Users'):
         os.mkdir('./Users')
     if not os.path.exists('./Posts'):
         os.mkdir('./Posts')
+    if not os.path.exists('./Twitter'):
+        os.mkdir('./Twitter')
+    if not os.path.exists('./Facebook'):
+        os.mkdir('./Facebook')
     print(username)
     user = User()
     time.sleep(4)
@@ -468,6 +551,23 @@ def get_user(username):
         print('-----posts')
     except:
         print('-----fail to get posts')
+
+    twitter_id = user.data['profile']['profile']['user']['twitterScreenName']
+    if twitter_id:
+        try:
+            mark_visited_twitter(username, twitter_id)
+            get_twitter_profile(username, twitter_id)
+        except:
+            mark_failed_twitter(username, twitter_id)
+            print('-----fail to get Twitter')
+
+    facebook_id = user.data['profile']['profile']['user']['facebookAccountId']
+    if facebook_id:
+        try:
+            mark_visited_facebook(username, facebook_id)
+        except:
+            mark_failed_facebook(username, facebook_id)
+            print('-----fail to get Facebook')
 
     print("-----%s obtained" % username)
 

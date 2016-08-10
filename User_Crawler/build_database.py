@@ -1,4 +1,4 @@
-# encoding: utf-8
+# -*- coding: utf-8 -*-
 
 import mysql.connector
 import secret
@@ -6,7 +6,8 @@ import random
 
 
 def build_database():
-    conn = mysql.connector.connect(host=secret.host, port=3306, user=secret.username, password=secret.password, database='Medium', charset='utf8')
+    conn = mysql.connector.connect(host=secret.host, port=3306, user=secret.username, password=secret.password,
+                                   database='Medium', charset='utf8')
     cur = conn.cursor()
     sql = 'CREATE TABLE users (' \
           'username varchar(255) NOT NULL, ' \

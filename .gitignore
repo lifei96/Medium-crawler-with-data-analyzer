@@ -3,4 +3,4 @@
 *.bak
 secret.py
 variable.py
-
+upload.sh
