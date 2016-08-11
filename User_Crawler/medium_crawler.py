@@ -8,7 +8,6 @@ import codecs
 import os
 import datetime
 import random
-import time
 import mysql.connector
 import variable
 
@@ -52,6 +51,17 @@ class Story(object):
         return result
 
 
+def mark_failed_post(post):
+    conn = mysql.connector.connect(host=variable.host, port=3306, user=variable.username, password=variable.password,
+                                   database='Medium', charset='utf8')
+    cur = conn.cursor()
+    sql = "UPDATE posts SET failed=1 WHERE post_id='%s'" % post
+    cur.execute(sql)
+    cur.close()
+    conn.commit()
+    conn.close()
+
+
 def get_story(post_id):
     url = 'https://medium.com/posts/' + post_id
     story = Story()
@@ -65,6 +75,7 @@ def get_story(post_id):
     except urllib2.URLError:
         story.data['success'] = 0
         print('----------timeout')
+        mark_failed_post(post_id)
         return story
     data = response.read()
 
@@ -72,6 +83,7 @@ def get_story(post_id):
     if not story_id:
         story.data['success'] = 0
         print('----------fail to get story_id')
+        mark_failed_post(post_id)
         return story
     else:
         story.data['story_id'] = story_id[0]
@@ -80,6 +92,7 @@ def get_story(post_id):
     if not author:
         story.data['success'] = 0
         print('----------fail to get author')
+        mark_failed_post(post_id)
         return story
     else:
         story.data['author'] = author[0]
@@ -88,6 +101,7 @@ def get_story(post_id):
     if not timestamp:
         story.data['success'] = 0
         print('----------fail to get timestamp')
+        mark_failed_post(post_id)
         return story
     else:
         story.data['timestamp'] = float(timestamp[0])
@@ -110,6 +124,7 @@ def get_story(post_id):
     if not tags:
         story.data['success'] = 0
         print('----------fail to get tags')
+        mark_failed_post(post_id)
         return story
     else:
         story.data['tags'] = json.loads(tags[0])
@@ -118,6 +133,7 @@ def get_story(post_id):
     if not recommends:
         story.data['success'] = 0
         print('----------fail to get recommends')
+        mark_failed_post(post_id)
         return story
     else:
         story.data['recommends'] = eval(recommends[0])
@@ -126,6 +142,7 @@ def get_story(post_id):
     if not responses:
         story.data['success'] = 0
         print('----------fail to get responses')
+        mark_failed_post(post_id)
         return story
     else:
         story.data['responses'] = eval(responses[0])
@@ -313,6 +330,7 @@ def mark_visited(username):
 
 
 def mark_failed(username):
+    print('-----mark failed')
     conn = mysql.connector.connect(host=variable.host, port=3306, user=variable.username, password=variable.password,
                                    database='Medium', charset='utf8')
     cur = conn.cursor()
@@ -328,7 +346,7 @@ def post_exist(post):
                                    database='Medium', charset='utf8')
     cur = conn.cursor()
     try:
-        sql = "INSERT INTO posts VALUE('%s', 1, 0)" % post
+        sql = "INSERT INTO posts VALUE('%s', %s, %s)" % (post, 1, 0)
         cur.execute(sql)
         cur.close()
         conn.commit()
@@ -338,17 +356,6 @@ def post_exist(post):
         cur.close()
         conn.close()
         return True
-
-
-def mark_failed_post(post):
-    conn = mysql.connector.connect(host=variable.host, port=3306, user=variable.username, password=variable.password,
-                                   database='Medium', charset='utf8')
-    cur = conn.cursor()
-    sql = "UPDATE posts SET failed=1 WHERE post_id='%s'" % post
-    cur.execute(sql)
-    cur.close()
-    conn.commit()
-    conn.close()
 
 
 def get_posts(user):
@@ -387,7 +394,7 @@ def get_twitter_profile(username, twitter_id):
     profile.pop("keyboardShortcuts", None)
     profile.pop("deciders", None)
     out = codecs.open("./Twitter/%s_t.json" % username, 'w', 'utf-8')
-    out.write(json.dumps(profile), indent=4)
+    out.write(json.dumps(profile, indent=4))
     out.close()
 
 
@@ -395,7 +402,7 @@ def mark_visited_twitter(username, twitter_id):
     conn = mysql.connector.connect(host=variable.host, port=3306, user=variable.username, password=variable.password,
                                    database='Medium', charset='utf8')
     cur = conn.cursor()
-    sql = "INSERT INTO twitter VALUE('%s', '%s', 1, 0)" % (username, twitter_id)
+    sql = "INSERT INTO twitter VALUE('%s', '%s', %s, %s)" % (username, twitter_id, 1, 0)
     cur.execute(sql)
     cur.close()
     conn.commit()
@@ -417,7 +424,7 @@ def mark_visited_facebook(username, facebook_id):
     conn = mysql.connector.connect(host=variable.host, port=3306, user=variable.username, password=variable.password,
                                    database='Medium', charset='utf8')
     cur = conn.cursor()
-    sql = "INSERT INTO facebook VALUE('%s', '%s', 0, 0)" % (username, facebook_id)
+    sql = "INSERT INTO facebook VALUE('%s', '%s', %s, %s)" % (username, facebook_id, 0, 0)
     cur.execute(sql)
     cur.close()
     conn.commit()
@@ -446,7 +453,6 @@ def get_user(username):
         os.mkdir('./Facebook')
     print(username)
     user = User()
-    time.sleep(4)
     url = 'https://medium.com/@' + username
     cj = cookielib.MozillaCookieJar()
     opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
@@ -455,8 +461,8 @@ def get_user(username):
                     Chrome/50.0.2661.102 Safari/537.36')
     try:
         response = opener.open(req, timeout=10)
-    except urllib2.URLError:
-        print(username + ' timeout')
+    except:
+        print('-----fail to get data')
         mark_failed(username)
         return
     data = response.read()
@@ -552,19 +558,23 @@ def get_user(username):
     except:
         print('-----fail to get posts')
 
-    twitter_id = user.data['profile']['profile']['user']['twitterScreenName']
+    twitter_id = user.data['profile']['user']['twitterScreenName']
+    print('-----twitter: ' + twitter_id)
     if twitter_id:
         try:
             mark_visited_twitter(username, twitter_id)
             get_twitter_profile(username, twitter_id)
+            print('-----twitter')
         except:
             mark_failed_twitter(username, twitter_id)
             print('-----fail to get Twitter')
 
-    facebook_id = user.data['profile']['profile']['user']['facebookAccountId']
+    facebook_id = user.data['profile']['user']['facebookAccountId']
+    print('-----facebook: ' + facebook_id)
     if facebook_id:
         try:
             mark_visited_facebook(username, facebook_id)
+            print('-----facebook')
         except:
             mark_failed_facebook(username, facebook_id)
             print('-----fail to get Facebook')
@@ -596,7 +606,7 @@ def bfs():
         try:
             get_user(username)
         except:
-            mark_failed(username)
+            print('fail to get user')
 
 
 if __name__ == '__main__':
