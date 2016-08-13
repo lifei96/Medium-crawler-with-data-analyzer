@@ -3,4 +3,9 @@
 *.bak
 secret.py
 variable.py
+facebook_variable.py
 upload.sh
+shutdown.sh
+clean.sh
+launch.sh
+

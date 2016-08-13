@@ -2,6 +2,7 @@
 
 import urllib2
 import cookielib
+import requests
 import re
 import json
 import codecs
@@ -10,6 +11,7 @@ import datetime
 import random
 import mysql.connector
 import variable
+import facebook_variable
 
 
 class User(object):
@@ -44,6 +46,26 @@ class Story(object):
             'responses': 0,
             'response_to': "",
             'success': 1,
+        }
+
+    def getstr(self):
+        result = json.dumps(self.data, indent=4)
+        return result
+
+
+class FBUser(object):
+    def __init__(self):
+        super(FBUser, self).__init__()
+        self.data = {
+            'user_id': '',
+            'URL': '',
+            'Name': '',
+            'Friends': None,
+            'Current City': '',
+            'Hometown': '',
+            'Birthday': '',
+            'Gender': '',
+            'Languages': '',
         }
 
     def getstr(self):
@@ -420,11 +442,115 @@ def mark_failed_twitter(username, twitter_id):
     conn.close()
 
 
+def get_facebook_profile(username, user_id):
+    print(user_id)
+    user = FBUser()
+
+    user.data['user_id'] = user_id
+
+    login_url = 'https://m.facebook.com/login'
+    s = requests.session()
+    login_data = {
+        'email': facebook_variable.username,
+        'pass': facebook_variable.password
+    }
+    s.post(login_url, login_data)
+
+    url = 'https://facebook.com/' + user_id
+    response = s.get(url)
+    data = response.content
+
+    URL = re.findall('URL=/(.*?)\?_fb_noscript=1', data)
+    if URL:
+        user.data['URL'] = URL[0]
+    else:
+        user.data['URL'] = user_id
+    print(user.data['URL'])
+
+    url = 'https://m.facebook.com/' + user.data['URL']
+    response = s.get(url)
+    data = response.content
+
+    name = re.findall('<title>(.*?)</title>', data)
+    if name:
+        user.data['Name'] = name[0]
+    else:
+        print('-----no Name to show')
+
+    friends = re.findall('See All Friends \((.*?)\)</a>', data)
+    if friends:
+        user.data['Friends'] = int(friends[0])
+    else:
+        print('-----no Friends to show')
+
+    current_city = re.findall('Current City<(.*?)a>', data)
+    if current_city:
+        current_city = re.findall('<a href="/(.*?)/', current_city[0])
+        if current_city:
+            current_city = re.findall('>(.*?)<', current_city[0])
+    if current_city:
+        user.data['Current City'] = current_city[0]
+    else:
+        print('-----no Current City to show')
+
+    hometown = re.findall('Hometown<(.*?)a>', data)
+    if hometown:
+        hometown = re.findall('<a href="/(.*?)/', hometown[0])
+        if hometown:
+            hometown = re.findall('>(.*?)<', hometown[0])
+    if hometown:
+        user.data['Hometown'] = hometown[0]
+    else:
+        print('-----no Hometown to show')
+
+    birthday = re.findall('Birthday</span></div></td><td(.*?)div>', data)
+    if birthday:
+        birthday = re.findall('><(.*?)/', birthday[0])
+        if birthday:
+            birthday = re.findall('>(.*?)<', birthday[0])
+    if birthday:
+        user.data['Birthday'] = birthday[0]
+    else:
+        birthday = re.findall('Birth Year</span></div></td><td(.*?)div>', data)
+        if birthday:
+            birthday = re.findall('><(.*?)/', birthday[0])
+            if birthday:
+                birthday = re.findall('>(.*?)<', birthday[0])
+        if birthday:
+            user.data['Birthday'] = birthday[0]
+        else:
+            print('-----no Birthday to show')
+
+    gender = re.findall('Gender</span></div></td><td(.*?)div>', data)
+    if gender:
+        gender = re.findall('><(.*?)/', gender[0])
+        if gender:
+            gender = re.findall('>(.*?)<', gender[0])
+    if gender:
+        user.data['Gender'] = gender[0]
+    else:
+        print('-----no Gender to show')
+
+    languages = re.findall('Languages</span></div></td><td(.*?)div>', data)
+    if languages:
+        languages = re.findall('><(.*?)/', languages[0])
+        if languages:
+            languages = re.findall('>(.*?)<', languages[0])
+    if languages:
+        user.data['Languages'] = languages[0]
+    else:
+        print('-----no Languages to show')
+
+    out = codecs.open("./Facebook/%s_fb.json" % username, 'w', 'utf-8')
+    out.write(user.getstr())
+    out.close()
+
+
 def mark_visited_facebook(username, facebook_id):
     conn = mysql.connector.connect(host=variable.host, port=3306, user=variable.username, password=variable.password,
                                    database='Medium', charset='utf8')
     cur = conn.cursor()
-    sql = "INSERT INTO facebook VALUE('%s', '%s', %s, %s)" % (username, facebook_id, 0, 0)
+    sql = "INSERT INTO facebook VALUE('%s', '%s', %s, %s)" % (username, facebook_id, 1, 0)
     cur.execute(sql)
     cur.close()
     conn.commit()
@@ -451,8 +577,11 @@ def get_user(username):
         os.mkdir('./Twitter')
     if not os.path.exists('./Facebook'):
         os.mkdir('./Facebook')
+
     print(username)
+
     user = User()
+
     url = 'https://medium.com/@' + username
     cj = cookielib.MozillaCookieJar()
     opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
@@ -574,6 +703,7 @@ def get_user(username):
     if facebook_id:
         try:
             mark_visited_facebook(username, facebook_id)
+            get_facebook_profile(username, facebook_id)
             print('-----facebook')
         except:
             mark_failed_facebook(username, facebook_id)
