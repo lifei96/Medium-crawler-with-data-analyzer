@@ -1,16 +1,6 @@
 # Medium_Crawler
-## How to use
-- Change directory to User_Crawler.
 
-- Run 'bash install.sh' (no sudo please) to set everything ready for user crawler to run.
+Medium Crawler is a distributed web crawler used to crawl data from Medium.com, a bloghost based social network. The crawled data includes users' profiles, following/followers lists, related posts and their Twitter/Facebook profiles(based on cross-site linking function).
 
-- Set the content of Queue.txt to the begin_ID you want.
+The crawled data is used to do research on social networks.
 
-- Clear the content of Visited.txt.
-
-- Run 'xvfb-run python medium_u_script.py'.
-
-- When it is done (It will take a long time), you can collect your data in 'User_Crawler/Data' folder.
-
-## How to restart the crashed program
-- Just run 'xvfb-run python medium_u_script.py'.
