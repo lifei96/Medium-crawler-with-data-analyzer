@@ -10,4 +10,9 @@ upload.sh
 shutdown.sh
 clean.sh
 launch.sh
-
+get_username_list.py
+get_post_list.py
+username_list.txt
+post_list.txt
+result/
+Data/

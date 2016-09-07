@@ -9,6 +9,7 @@ import codecs
 import os
 import datetime
 import random
+import time
 import mysql.connector
 import variable
 import facebook_variable
@@ -456,6 +457,7 @@ def get_facebook_profile(username, user_id):
     }
     s.post(login_url, login_data)
 
+    time.sleep(1)
     url = 'https://facebook.com/' + user_id
     response = s.get(url)
     data = response.content
@@ -467,6 +469,7 @@ def get_facebook_profile(username, user_id):
         user.data['URL'] = user_id
     print(user.data['URL'])
 
+    time.sleep(1)
     url = 'https://m.facebook.com/' + user.data['URL']
     response = s.get(url)
     data = response.content
@@ -476,6 +479,11 @@ def get_facebook_profile(username, user_id):
         user.data['Name'] = name[0]
     else:
         print('-----no Name to show')
+
+    if user.data['Name'] == 'Page Not Found':
+        print('-----blocked')
+        mark_failed_facebook(username, user_id)
+        return
 
     friends = re.findall('See All Friends \((.*?)\)</a>', data)
     if friends:
