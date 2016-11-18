@@ -17,6 +17,25 @@ def posts_data_parser():
 
     mask = (posts_data['published_date'] >= datetime.datetime(2013, 1, 1)) & (posts_data['published_date'] <= datetime.datetime(2016, 6, 30))
     posts_data = posts_data.loc[mask]
+    posts_data['weekday'] = [date.isoweekday() for date in posts_data['published_date']]
+
+    posts_data_list = posts_data.groupby(['weekday'])[['post_id']].count().rename(columns={'post_id': 'post_count'})
+    posts_data_list['post_count'] = [count / 182.0 for count in posts_data_list['post_count']]
+    posts_data_weekday = pd.DataFrame(posts_data_list.values.tolist(), columns=['posts_count_mean'])
+    ax = posts_data_weekday.plot.bar(figsize=(15, 10), fontsize=16)
+    ax.set_xticks(posts_data_weekday.index)
+    ax.set_xticklabels(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'], rotation=0)
+    plt.savefig('./result/posts_count_by_weekday.png')
+    plt.close()
+
+    posts_data_list = posts_data.groupby(['weekday'])[['recommends']].mean()
+    posts_data_list = pd.concat([posts_data_list, posts_data.groupby(['weekday'])[['responses']].mean()], axis=1)
+    posts_data_weekday = pd.DataFrame(posts_data_list.values.tolist(), columns=['recommends_mean', 'responses_mean'])
+    ax = posts_data_weekday.plot.bar(figsize=(15, 10), fontsize=16)
+    ax.set_xticks(posts_data_weekday.index)
+    ax.set_xticklabels(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'], rotation=0)
+    plt.savefig('./result/posts_popularity_by_weekday.png')
+    plt.close()
 
     plt.figure(figsize=(20, 10))
     plt.axis([datetime.datetime(2013, 1, 1), datetime.datetime(2016, 6, 30), 0, 7000])
