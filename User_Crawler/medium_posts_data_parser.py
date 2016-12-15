@@ -18,7 +18,7 @@ def posts_data_parser():
     mask = (posts_data['published_date'] >= datetime.datetime(2013, 1, 1)) & (posts_data['published_date'] <= datetime.datetime(2016, 6, 30))
     posts_data = posts_data.loc[mask]
     posts_data['weekday'] = [date.isoweekday() for date in posts_data['published_date']]
-
+    '''
     posts_data_list = posts_data.groupby(['weekday'])[['post_id']].count().rename(columns={'post_id': 'post_count'})
     posts_data_list['post_count'] = [count / 182.0 for count in posts_data_list['post_count']]
     posts_data_weekday = pd.DataFrame(posts_data_list.values.tolist(), columns=['posts_count_mean'])
@@ -62,6 +62,32 @@ def posts_data_parser():
     plt.plot(responses_count_list, np.linspace(0, 1, responses_count_list.size))
     plt.savefig('./result/CDF_post_responses_count.png')
     plt.close()
+    '''
+    mask = (posts_data['recommends'] >= 10)
+    posts_data_temp = posts_data.loc[mask]
+    posts_data_list = np.sort((posts_data_temp['responses']/posts_data_temp['recommends']).tolist())
+    plt.xlabel('responses/recommends')
+    plt.ylabel('CDF')
+    plt.grid()
+    plt.axis([0, 1, 0, 1])
+    plt.title('responses/recommends CDF')
+    plt.plot(posts_data_list, np.linspace(0, 1, posts_data_list.size))
+    plt.savefig('./result/CDF_responses_recommends.png')
+    plt.close()
+
+    mask = (posts_data['recommends'] >= 10)
+    posts_data_temp = posts_data.loc[mask]
+    posts_data_list = posts_data_temp.sample(n=posts_data_temp.size/300)
+    plt.figure(figsize=(20, 2))
+    plt.xlabel('recommends')
+    plt.ylabel('responses')
+    plt.grid()
+    plt.axis([0, 500, 0, 50])
+    plt.title('responses-recommends')
+    plt.scatter(posts_data_list['recommends'].tolist(), posts_data_list['responses'].tolist(), s=1)
+    plt.savefig('./result/responses_recommends.png')
+    plt.close()
+
 
 if __name__ == '__main__':
     posts_data_parser()
