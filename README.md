@@ -1,5 +1,4 @@
-# Medium crawler
-
+# Medium crawler with data parser
 Medium Crawler is a distributed web crawler to crawl data from Medium.com, a light blog social network.
 
 The crawled data includes users' profiles, following/followers lists, users' posts and their Twitter/Facebook profiles(based on cross-site linking function).
