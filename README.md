@@ -1,4 +1,4 @@
-# Medium Crawler
+# Medium crawler
 
 Medium Crawler is a distributed web crawler to crawl data from Medium.com, a light blog social network.
 
