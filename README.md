@@ -1,6 +1,6 @@
-# Medium crawler with data parser
+# Medium crawler with data analyzer
 This is a distributed web crawler to crawl data from Medium.com, a light blog social network.
 
 The crawled data includes users' profiles, following/followers lists, users' posts and their Twitter/Facebook profiles(based on cross-site linking function).
 
-In addition, different data parsers are developed to do research on social networks.
+In addition, different data analyzers are developed to do research on social networks.
