@@ -22,11 +22,11 @@ def read_posts():
             raw_data = json.loads(str(file_in.read()))
             file_in.close()
             for tag in raw_data['tags']:
-            	post = dict()
-            	post['post_id'] = post_id
-            	post['published_date'] = raw_data['published_date']
-            	post['recommends'] = raw_data['recommends']
-            	post['responses'] = raw_data['responses']
+                post = dict()
+                post['post_id'] = post_id
+                post['published_date'] = raw_data['published_date']
+                post['recommends'] = raw_data['recommends']
+                post['responses'] = raw_data['responses']
                 post['tag'] = tag['name']
                 posts.append(post)
                 print(post)
