@@ -1,8 +1,6 @@
-# Medium Crawler
+# Medium crawler with data analyzer
+This is a distributed web crawler to crawl data from Medium.com, a light blog social network.
 
-Medium Crawler is a distributed web crawler used to crawl data from Medium.com, a bloghost social network.
+The crawled data includes users' profiles, following/followers lists, users' posts and their Twitter/Facebook profiles(based on cross-site linking function).
 
-The crawled data includes users' profiles, following/followers lists, related posts and their Twitter/Facebook profiles(based on cross-site linking function).
-
-The crawled data is used to do research on social networks.
-
+In addition, different data analyzers are developed to do research on social networks.
