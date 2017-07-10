@@ -3,6 +3,8 @@
 *.*~
 *.pyc
 *.bak
+*.txt
+*.eps
 secret.py
 variable.py
 facebook_variable.py
@@ -18,3 +20,4 @@ result/
 Data/
 suspended_username_list.txt
 get_suspended_username_list.py
+results/
