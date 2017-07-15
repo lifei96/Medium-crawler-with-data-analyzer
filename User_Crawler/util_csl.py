@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from types import *
 import pandas as pd
 
 USER_ATTR_LIST = ['./data/cross-site-linking/user_type.csv',
@@ -35,7 +34,7 @@ def load_user_attr_to_dict(file_path):
 def load_all_attr_to_dict(file_list=USER_ATTR_LIST):
     res = {}
     for file_path in file_list:
-        user_attr_dict = load_user_attr(file_path)
+        user_attr_dict = load_user_attr_to_dict(file_path)
         res = dict_merge(res, user_attr_dict)
     return res
 
