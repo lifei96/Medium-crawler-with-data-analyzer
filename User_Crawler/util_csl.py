@@ -17,11 +17,15 @@ USER_ATTR_LIST = ['./data/cross-site-linking/user_type.csv',
                   './data/graph/pagerank.csv',
                   './data/cross-site-linking/user_attr_other.csv',
                   './data/cross-site-linking/username.csv'
-
                   ]
 
 TWITTER_ATTR_LIST = ['./data/cross-site-linking/user_attr_str.csv',
                      './data/cross-site-linking/twitter_attr.csv']
+
+
+def get_user_type_dict():
+    user_type_path = './data/cross-site-linking/user_type.csv'
+    return load_user_attr_to_dict(user_type_path)
 
 
 def timestamp_to_date(timestamp):
@@ -299,8 +303,7 @@ def get_similarity(file_path='./data/cross-site-linking/user_twitter_attr.csv'):
     df_output(bio_simi_df, './data/cross-site-linking/bio_simi.csv')
 
 
-def get_txt(file_path, field, output_path):
-    df = load_user_attr_to_df(file_path)
+def get_txt(df, field, output_path):
     df.fillna('', inplace=True)
     output_str = ''
     tot = df.shape[0]
@@ -317,6 +320,32 @@ def get_txt(file_path, field, output_path):
         print '%d/%d' % (cnt, tot)
     with open(output_path, 'w') as f:
         f.write(output_str.replace('&amp', ''))
+
+
+def split_bio_to_txt(file_path='./data/cross-site-linking/user_attr_str.csv'):
+    user_type_path = './data/cross-site-linking/user_type.csv'
+    user_str_df = load_all_attr_to_df([file_path, user_type_path])
+    user_str_df.fillna('', inplace=True)
+    output_str = ['', '', '', '']
+    tot = user_str_df.shape[0]
+    cnt = 0
+    for idx, row in user_str_df.iterrows():
+        try:
+            bio = row['bio'].encode('utf-8')
+            user_type = row['user_type']
+            if bio != '':
+                output_str[user_type] += (bio.encode('utf-8') + '\n')
+        except Exception as e:
+            print type(e)
+            print e.args
+            print e
+        cnt += 1
+        print '%d/%d' % (cnt, tot)
+    for i in range(4):
+        with open('./data/cross-site-linking/bio_%d.txt' % i, 'w') as f:
+            f.write(output_str[i])
+    with open('./data/cross-site-linking/bio_all.txt', 'w') as f:
+        f.write('\n'.join(output_str))
 
 
 def get_wordcloud(file_path):
@@ -341,3 +370,43 @@ def split_similarity():
     split_df(username_df, './data/cross-site-linking/username_simi_')
     split_df(name_df, './data/cross-site-linking/name_simi_')
     split_df(bio_df, './data/cross-site-linking/bio_simi_')
+
+
+def get_tags(username):
+    with open('./data/Users/%s.json' % username, 'r') as f:
+        user_data = json.load(f)
+    tags = []
+    try:
+        for tag in user_data['profile']['interestTags']:
+            tags.append(tag['name'].encode('utf-8'))
+    except Exception as e:
+        print type(e)
+        print e.args
+        print e
+    return tags
+
+
+def split_tags_to_txt():
+    user_type_path = './data/cross-site-linking/user_type.csv'
+    user_type_df = load_user_attr_to_df(user_type_path)
+    output_str = ['', '', '', '']
+    tot = user_type_df.shape[0]
+    cnt = 0
+    for idx, row in user_type_df.iterrows():
+        try:
+            username = row['username']
+            tags = get_tags(username)
+            user_type = row['user_type']
+            if len(tags) > 0:
+                output_str[user_type] += ('\n'.join(tags) + '\n').encode('utf-8')
+        except Exception as e:
+            print type(e)
+            print e.args
+            print e
+        cnt += 1
+        print '%d/%d' % (cnt, tot)
+    for i in range(4):
+        with open('./data/cross-site-linking/tag_%d.txt' % i, 'w') as f:
+            f.write(output_str[i])
+    with open('./data/cross-site-linking/tag_all.txt', 'w') as f:
+        f.write('\n'.join(output_str))

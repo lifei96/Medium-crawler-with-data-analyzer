@@ -7,7 +7,7 @@ from sklearn.model_selection import train_test_split
 def get_prediction_dataset():
     dataset = pd.read_csv('./data/prediction/dataset.csv')
     dataset = dataset.dropna(how='any')
-    dataset = dataset.drop(['PR', 'username', 'followers', 'following', 'twitter'], axis=1)
+    dataset = dataset.drop(['PR', 'authorTags', 'bio', 'collections', 'createdAt', 'facebook', 'username', 'followers', 'following', 'highlights', 'interestTags', 'lastPostCreatedAt', 'posts', 'postsInMonthlyTop100', 'recommends', 'responses', 'topAuthorTags', 'twitter'], axis=1)
     cols = list(dataset.columns.values)
     cols.pop(cols.index('class_1'))
     cols.pop(cols.index('class_5'))
