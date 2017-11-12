@@ -5,4 +5,4 @@ The crawled data includes users' profiles, following/followers lists, users' pos
 
 In addition, different data analyzers are developed to do research on social networks.
 
-A research paper based on this project is submitted to PerCom Workshops 2018. GL && HF!
+A research paper based on this project is submitted to *2018 IEEE International Conference on Pervasive Computing and Communications Workshops (PerCom Workshops)*. GL && HF!
