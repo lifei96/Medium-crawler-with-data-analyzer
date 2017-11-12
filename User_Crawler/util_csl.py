@@ -130,10 +130,12 @@ def get_csl_ratio_by_bin_attr(file_path='./data/cross-site-linking/user_attr.csv
     row_0 = df_0.shape[0]
     row_1 = df_1.shape[0]
     print attr + ': ' + '0'
+    print row_0
     for i in range(4):
         print str(i) + ': ' + str(df_0[df_0['user_type'] == i].shape[0] / float(row_0))
     print '\n'
     print attr + ': ' + '1'
+    print row_1
     for i in range(4):
         print str(i) + ': ' + str(df_1[df_1['user_type'] == i].shape[0] / float(row_1))
 
@@ -152,10 +154,24 @@ def get_date_type(file_path='./data/cross-site-linking/user_attr.csv'):
     df_output(res, './data/cross-site-linking/date_type.csv')
 
 
+def get_date_username(file_path='./data/cross-site-linking/user_attr.csv'):
+    user_attr_df = load_user_attr_to_df(file_path)
+    type_time_df = user_attr_df[['username', 'created_at']]
+    type_time_df = type_time_df.sort_values(by='created_at')
+    date_type_list = []
+    for idx, row in type_time_df.iterrows():
+        date_type_dict = {}
+        date_type_dict['created_date'] = timestamp_to_date(row['created_at'])
+        date_type_dict['username'] = row['username']
+        date_type_list.append(date_type_dict)
+    res = pd.DataFrame(date_type_list)
+    df_output(res, './data/cross-site-linking/date_username.csv')
+
+
 def get_date_csl_ratio(file_path='./data/cross-site-linking/date_type.csv'):
     date_type_df = load_user_attr_to_df(file_path)
     date_csl_list = []
-    csl_num = [0, 0, 0, 0]
+    csl_num = [0, 0, 0, 0, 0]
     cur_date = ''
     for idx, row in date_type_df.iterrows():
         if cur_date == '':
@@ -166,14 +182,17 @@ def get_date_csl_ratio(file_path='./data/cross-site-linking/date_type.csv'):
             tot = sum(csl_num)
             for i in range(4):
                 date_csl_dict[str(i)] = float(csl_num[i]) / tot
+            date_csl_dict['4'] = csl_num[4]
             date_csl_list.append(date_csl_dict)
             cur_date = row['created_date']
         csl_num[int(row['user_type'])] += 1
+        csl_num[4] += 1
     date_csl_dict = {}
     date_csl_dict['date'] = cur_date
     tot = sum(csl_num)
     for i in range(4):
         date_csl_dict[str(i)] = float(csl_num[i]) / tot
+    date_csl_dict['4'] = csl_num[4]
     date_csl_list.append(date_csl_dict)
     date_csl_df = pd.DataFrame(date_csl_list)
     df_output(date_csl_df, './data/cross-site-linking/date_csl_ratio.csv')
@@ -410,3 +429,29 @@ def split_tags_to_txt():
             f.write(output_str[i])
     with open('./data/cross-site-linking/tag_all.txt', 'w') as f:
         f.write('\n'.join(output_str))
+
+
+def get_degree_in_graph_csl():
+    user_type_dict = get_user_type_dict()
+    degree_df = load_user_attr_to_df('./data/graph/degree_in_graph.csv')
+    user_type = []
+    for username in degree_df['username']:
+        if username in user_type_dict:
+            user_type.append(user_type_dict[username]['user_type'])
+        else:
+            user_type.append(-1)
+    degree_df['user_type'] = user_type
+    split_df(degree_df, './data/cross-site-linking/user_degree_in_graph_')
+
+
+def get_CC_csl():
+    user_type_dict = get_user_type_dict()
+    cc_df = load_user_attr_to_df('./data/graph/cc_20160801.csv')
+    user_type = []
+    for username in cc_df['username']:
+        if username in user_type_dict:
+            user_type.append(user_type_dict[username]['user_type'])
+        else:
+            user_type.append(-1)
+    cc_df['user_type'] = user_type
+    split_df(cc_df, './data/cross-site-linking/user_cc_')

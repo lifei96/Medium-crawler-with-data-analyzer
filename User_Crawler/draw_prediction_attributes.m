@@ -1,5 +1,5 @@
 function draw_prediction_attributes()
-    columns = {'Description', 'Likes', 'Followers', 'Following', 'Lists', 'Tweets'};
+    columns = {'Description', 'Likes', 'Followers', 'Followings', 'Lists', 'Tweets'};
     dataset = csvread('./data/prediction/dataset_1_train.csv', 1, 0);
     for k = 2:6
         figure(k-1);
@@ -32,7 +32,7 @@ function draw_prediction_attributes()
         set(gca, 'FontSize', 12);
         xlabel(strjoin({'Number of', columns{k}}),'FontSize',20);
         ylabel('Percentage(%)','FontSize',20);
-        legend('Not Top 1%', 'Top 1%', 'Location', 'NorthWest');
+        legend('Less Influential', 'High Influential', 'Location', 'NorthWest');
         set(legend, 'FontSize', 20);
         title('');
         grid off;

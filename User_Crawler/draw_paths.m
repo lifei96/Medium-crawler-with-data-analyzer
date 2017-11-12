@@ -3,6 +3,7 @@ function draw_paths()
     Y_sum = sum(Y);
     Y = Y./Y_sum;
     X = 0:length(Y)-1;
+    disp(sum(X.*Y));
     plot(X, Y, '-k.', 'markers', 24, 'LineWidth', 2);
     set(gca,'XTick',(0:4:16))
     set(gca, 'yticklabel', cellstr(num2str(get(gca,'ytick')'*100)));

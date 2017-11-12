@@ -15,11 +15,13 @@ def data_pre_process(train_path, test_path, label, drop_list=None):
     if drop_list:
         train_dataset = train_dataset.drop(drop_list, axis=1)
     y_train = train_dataset[label].astype(int)
+    print y_train.dtypes
     X_train = train_dataset.drop(label, axis=1)
     test_dataset = pandas.read_csv(test_path)
     if drop_list:
         test_dataset = test_dataset.drop(drop_list, axis=1)
     y_test = test_dataset[label].astype(int)
+    print y_test.dtypes
     X_test = test_dataset.drop(label, axis=1)
     dtrain = xgb.DMatrix(X_train, label=y_train)
     dtest = xgb.DMatrix(X_test, label=y_test)
@@ -27,14 +29,18 @@ def data_pre_process(train_path, test_path, label, drop_list=None):
 
 
 def f1(preds, dtrain):
-    return 'f1-score', f1_score(dtrain.get_label(), preds, average='weighted')
+    dtrain = dtrain.get_label()
+    y_bin = [1. if y_cont > 0.5 else 0. for y_cont in preds]
+    return 'f1', f1_score(dtrain, y_bin)
 
 
-def xgb_train(dtrain, dtest, param):
+def xgb_train(dtrain, dtest, param, num_boost_round=200):
     evallist = [(dtest, 'eval')]
-    bst = xgb.train(param, dtrain, num_boost_round=200, evals=evallist, feval=f1, maximize=True, early_stopping_rounds=50)
+    bst = xgb.train(param, dtrain, num_boost_round=num_boost_round, evals=evallist, feval=f1, maximize=True, early_stopping_rounds=50)
     print (param)
     print '-----cur_f1 ', bst.best_score
+    preds = bst.predict(dtest)
+    print (classification_report(dtest.get_label(), [1. if y_cont > 0.5 else 0. for y_cont in preds], digits=6))
     return bst.best_score
 
 
@@ -96,22 +102,23 @@ def random_grid_search(dtrain, dtest, output_path):
 
 
 def solo_train():
-    param = {'learning_rate': 0.34,
+    param = {'learning_rate': 0.37,
              'max_depth': 6,
              'min_child_weight': 1,
              'gamma': 0,
-             'subsample': 0.8,
-             'colsample_bytree': 0.8,
-             'alpha': 0,
+             'subsample': 0.6,
+             'colsample_bytree': 0.9,
+             'alpha': 0.005,
              'lambda': 1,
-             'objective': 'multi:softmax',
-             'num_class': 2,
+             'booster': 'gbtree',
+             'objective': 'binary:logistic',
+             'eval_metric': 'auc',
              'seed': 7,
              'silent': 1}
     dtrain, dtest = data_pre_process('./data/prediction/dataset_1_train.csv',
                                      './data/prediction/dataset_1_test.csv',
                                      'class_1')
-    xgb_train(dtrain, dtest, param)
+    xgb_train(dtrain, dtest, param, 16)
 
 
 def grid_train():
@@ -122,4 +129,4 @@ def grid_train():
 
 
 if __name__ == '__main__':
-    grid_train()
+    solo_train()

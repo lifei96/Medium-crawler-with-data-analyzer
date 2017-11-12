@@ -1,5 +1,6 @@
 function draw_pr()
     dataset = csvread('./data/graph/pagerank.csv', 1, 1);
+    disp(mean(dataset(:,1)));
     h = cdfplot(dataset(:,1));
     xlim([0 1e-5]);
     set(h, 'color', 'k', 'LineStyle', '-', 'LineWidth', 2);
@@ -9,5 +10,7 @@ function draw_pr()
     ylabel('Percentage(%)','FontSize',20);
     title('');
     grid off;
-    print('./results/graph/CDF_pagerank.eps', '-depsc')
+    print('./results/graph/CDF_pagerank.eps', '-depsc');
+    sorted = sort(dataset(:,1));
+    disp(sorted(int32(length(sorted)*0.99)));
 end

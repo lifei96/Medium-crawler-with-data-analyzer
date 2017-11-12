@@ -2,6 +2,7 @@
 
 import snap
 import pandas as pd
+import numpy as np
 import os
 import json
 from operator import *
@@ -9,12 +10,35 @@ from operator import *
 
 eps = 1e-10
 
+date_list = ['20130101', '20130701', '20140101', '20140701', '20150101', '20150701', '20160101', '20160701']
+
 
 def load_graph(file_path):
     H = snap.TStrIntSH()
     Graph = snap.LoadConnListStr(snap.PNGraph, file_path, H)
     print "-----graph loaded"
     return Graph, H
+
+
+def load_username_map(file_path='./data/graph/graph.dat'):
+    Graph, H = load_graph(file_path)
+    return H
+
+
+def load_graph_from_edge_list(input_path):
+    return snap.LoadEdgeList(snap.PNGraph, input_path, 0, 1)
+
+
+def save_graph_to_edge_list(Graph, output_path):
+    snap.SaveEdgeList(Graph, output_path)
+
+
+def convert_to_undirected(in_Graph):
+    return snap.ConvertGraph(snap.PUNGraph, in_Graph)
+
+
+def load_user_attr_to_df(file_path):
+    return pd.read_csv(file_path, encoding='utf-8', engine='python')
 
 
 def get_labeled_graph(file_path, output_path_graph, output_path_hash):
@@ -137,8 +161,23 @@ def graph_cleaning(file_path):
             f.write(' '.join(edge_cleaned) + '\n')
 
 
+def get_pagerank_by_date(date_list=date_list):
+    for date in date_list:
+        get_pagerank_from_edge_list('./data/graph/Graph_%s.txt' % date, './data/graph/pr_%s.csv' % date)
+
+
+def get_pagerank_from_edge_list(file_path, output_path):
+    Graph = load_graph_from_edge_list(file_path)
+    H = load_username_map()
+    _get_pagerank(Graph, H, output_path)
+
+
 def get_pagerank(file_path, output_path):
     Graph, H = load_graph(file_path)
+    _get_pagerank(Graph, H, output_path)
+
+
+def _get_pagerank(Graph, H, output_path):
     PRankH = snap.TIntFltH()
     snap.GetPageRank(Graph, PRankH)
     pr_list = list()
@@ -149,8 +188,85 @@ def get_pagerank(file_path, output_path):
     dataset.to_csv(output_path, index=False, encoding='utf-8')
 
 
+def get_degree_by_date(date_list=date_list):
+    for date in date_list:
+        get_degree_from_edge_list('./data/graph/Graph_%s.txt' % date, './data/graph/degree_%s.csv' % date)
+
+
+def get_degree_from_edge_list(file_path, output_path):
+    Graph = load_graph_from_edge_list(file_path)
+    H = load_username_map()
+    _get_degree_in_graph(Graph, H, output_path)
+
+
+def _get_degree_in_graph(Graph, H, output_path):
+    InDegV = snap.TIntPrV()
+    snap.GetNodeInDegV(Graph, InDegV)
+    InDeg_set = dict()
+    for item in InDegV:
+        username = H.GetKey(item.GetVal1())
+        InDeg = item.GetVal2()
+        InDeg_set[username] = InDeg
+    OutDegV = snap.TIntPrV()
+    snap.GetNodeOutDegV(Graph, OutDegV)
+    OutDeg_set = dict()
+    for item in OutDegV:
+        username = H.GetKey(item.GetVal1())
+        OutDeg = item.GetVal2()
+        OutDeg_set[username] = OutDeg
+    dataset = list()
+    tot = len(InDeg_set)
+    num = 0
+    for username in InDeg_set:
+        user_degree = dict()
+        user_degree['username'] = username
+        user_degree['in_degree'] = InDeg_set[username]
+        user_degree['out_degree'] = OutDeg_set[username]
+        profile_path = './data/Users/%s.json' % username
+        if not os.path.exists(profile_path):
+            continue
+        with open(profile_path, 'r') as f:
+            profile = json.load(f)
+        in_set = set(profile['followers'])
+        out_set = set(profile['following'])
+        if user_degree['out_degree'] == 0:
+            user_degree['balance'] = float(user_degree['in_degree']) / eps
+        else:
+            user_degree['balance'] = float(user_degree['in_degree']) / float(user_degree['out_degree'])
+        bi = 0
+        for out_username in out_set:
+            if out_username in in_set:
+                try:
+                    ID = H.GetDat(out_username)
+                    if ID is not -1 and Graph.IsNode(ID):
+                        bi += 1
+                except Exception as e:
+                    print type(e)
+                    print e.args
+                    print e
+        if user_degree['out_degree'] == 0:
+            user_degree['reciprocity'] = float(bi) / eps
+        else:
+            user_degree['reciprocity'] = float(bi) / float(user_degree['out_degree'])
+        dataset.append(user_degree)
+        num += 1
+        print '%d/%d' % (num, tot)
+    dataset = pd.DataFrame(dataset)
+    dataset = dataset[['username', 'in_degree', 'out_degree', 'balance', 'reciprocity']]
+    dataset.to_csv(output_path, index=False, encoding='utf-8')
+
+
+def get_degree_in_graph(file_path, output_path):
+    Graph, H = load_graph(file_path)
+    _get_degree_in_graph(Graph, H, output_path)
+
+
 def get_degree(file_path, output_path):
     Graph, H = load_graph(file_path)
+    _get_degree(Graph, H, output_path)
+
+
+def _get_degree(Graph, H, output_path):
     InDegV = snap.TIntPrV()
     snap.GetNodeInDegV(Graph, InDegV)
     InDeg_set = dict()
@@ -205,8 +321,23 @@ def get_degree(file_path, output_path):
     dataset.to_csv(output_path, index=False, encoding='utf-8')
 
 
+def get_CC_by_date(date_list=date_list):
+    for date in date_list:
+        get_CC_from_edge_list('./data/graph/Graph_%s.txt' % date, './data/graph/cc_%s.csv' % date)
+
+
+def get_CC_from_edge_list(file_path, output_path):
+    Graph = load_graph_from_edge_list(file_path)
+    H = load_username_map()
+    _get_CC(Graph, H, output_path)
+
+
 def get_CC(file_path, output_path):
     Graph, H = load_graph(file_path)
+    _get_CC(Graph, H, output_path)
+
+
+def _get_CC(Graph, H, output_path):
     NIdCCfH = snap.TIntFltH()
     snap.GetNodeClustCf(Graph, NIdCCfH)
     dataset = list()
@@ -220,8 +351,23 @@ def get_CC(file_path, output_path):
     dataset.to_csv(output_path, index=False, encoding='utf-8')
 
 
+def get_SCC_by_date(date_list=date_list):
+    for date in date_list:
+        get_SCC_from_edge_list('./data/graph/Graph_%s.txt' % date, './data/graph/scc_%s.csv' % date)
+
+
+def get_SCC_from_edge_list(file_path, output_path):
+    Graph = load_graph_from_edge_list(file_path)
+    H = load_username_map()
+    _get_SCC(Graph, H, output_path)
+
+
 def get_SCC(file_path, output_path):
     Graph, H = load_graph(file_path)
+    _get_SCC(Graph, H, output_path)
+
+
+def _get_SCC(Graph, H, output_path):
     ComponentDist = snap.TIntPrV()
     snap.GetSccSzCnt(Graph, ComponentDist)
     dataset = list()
@@ -385,3 +531,72 @@ def get_robustness(file_path, LSCC_output_path, LWCC_output_path):
     LWCC_robust = pd.DataFrame(LWCC_robust)
     LWCC_robust = LWCC_robust[['removed', 'singleton', 'middle', 'LWCC']]
     LWCC_robust.to_csv(LWCC_output_path, index=False, encoding='utf-8')
+
+
+def get_community_CNM(file_path, output_path):
+    Graph, H = load_graph(file_path)
+    Graph = convert_to_undirected(Graph)
+    CmtyV = snap.TCnComV()
+    modularity = snap.CommunityCNM(Graph, CmtyV)
+    output_str = 'Modularity: ' + str(modularity) + '\nNum of communities: ' + str(len(CmtyV)) + '\nCommunities:\n'
+    for Cmty in CmtyV:
+        output_str += str(len(Cmty)) + '\n'
+    with open(output_path, 'w') as f:
+        f.write(output_str)
+
+
+def get_graph_by_month(graph_path, date_username_path):
+    date_username_df = load_user_attr_to_df(date_username_path)
+    date_username_df.sort_values(by='created_date', ascending=False, inplace=True)
+    print 'date_username loaded'
+    Graph, H = load_graph(graph_path)
+    cur_date = ''
+    print date_username_df['created_date']
+    for idx, row in date_username_df.iterrows():
+        if Graph.GetNodes() < 30000:
+            break
+        print row['created_date']
+        try:
+            if cur_date == '':
+                cur_date = str(row['created_date'])
+            if cur_date[-2:] == '01' and str(row['created_date']) != cur_date:
+                snap.SaveEdgeList(Graph, './data/graph/Graph_%s.txt' % cur_date)
+            cur_date = str(row['created_date'])
+            username = row['username']
+            Node_ID = H.GetDat(username)
+            Graph.DelNode(Node_ID)
+        except Exception as e:
+            print '!'
+            print e
+
+
+def get_avg_cc_degree(cc_file_path, degree_file_path, output_path):
+    cc_df = load_user_attr_to_df(cc_file_path)
+    degree_df = load_user_attr_to_df(degree_file_path)
+    df = pd.DataFrame(pd.concat([cc_df, degree_df], axis=1, join='inner'))
+    cc_degree_dict = {}
+    for idx, row in df.iterrows():
+        if 0 <= row['CC'] < 1:
+            degree = row['in_degree'] + row['out_degree']
+            if degree in cc_degree_dict:
+                cc_degree_dict[degree].append(row['CC'])
+            else:
+                cc_degree_dict[degree] = []
+                cc_degree_dict[degree].append(row['CC'])
+    degree_list = []
+    avg_cc_list = []
+    for degree in cc_degree_dict:
+        degree_list.append(degree)
+        avg_cc_list.append(np.mean(cc_degree_dict[degree]))
+    avg_cc_df = pd.DataFrame()
+    avg_cc_df['degree'] = degree_list
+    avg_cc_df['avg_cc'] = avg_cc_list
+    avg_cc_df.sort(columns='degree', ascending=True, inplace=True)
+    avg_cc_df.to_csv(output_path, index=False, encoding='utf-8')
+
+
+def get_pagerank_percentage(percentage=0.01):
+    df = load_user_attr_to_df('./data/graph/pagerank.csv')
+    pr_list = df['PR'].tolist()
+    sorted_pr_list = sorted(pr_list, reverse=True)
+    print sorted_pr_list[int(percentage * len(sorted_pr_list))]

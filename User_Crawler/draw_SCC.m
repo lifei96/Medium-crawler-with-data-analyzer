@@ -6,7 +6,7 @@ function draw_SCC()
     set(gca,'YScale','log')
     set(gca, 'xticklabel', X);
     set(gca, 'FontSize', 12);
-    xlabel('Top 10 Strong Connected Components','FontSize',20);
+    xlabel('Top 10 Strongly Connected Components','FontSize',20);
     ylabel('Component Size','FontSize',20);
     title('');
     grid off;

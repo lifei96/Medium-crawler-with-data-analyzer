@@ -24,7 +24,7 @@ function draw_csl_attr()
     set(legend, 'FontSize', 20);
     title('');
     grid off;
-    print('./results/csl/CDF_CC_csl.eps', '-depsc');
+    print('./results/csl/CDF_CC_csl_old.eps', '-depsc');
     
     figure(2);
     h = cdfplot(dataset_0(:,2));
@@ -84,7 +84,8 @@ function draw_csl_attr()
     hold on;
     h = cdfplot(dataset_3(:,4));
     set(h, 'color', 'b', 'LineStyle', ':', 'LineWidth', 2);
-    xlim([0, 2]);
+    set(gca,'XScale','log');
+    xlim([0.1 10]);
     set(gca, 'yticklabel', cellstr(num2str(get(gca,'ytick')'*100)));
     set(gca, 'FontSize', 12);
     xlabel('Balance','FontSize',20);
@@ -152,7 +153,7 @@ function draw_csl_attr()
     hold on;
     h = cdfplot(dataset_3(:,9));
     set(h, 'color', 'b', 'LineStyle', ':', 'LineWidth', 2);
-    xlim([0 20]);
+    xlim([0 10]);
     set(gca, 'yticklabel', cellstr(num2str(get(gca,'ytick')'*100)));
     set(gca, 'FontSize', 12);
     xlabel('Number of Highlights','FontSize',20);
@@ -175,7 +176,7 @@ function draw_csl_attr()
     hold on;
     h = cdfplot(dataset_3(:,10));
     set(h, 'color', 'b', 'LineStyle', ':', 'LineWidth', 2);
-    xlim([0 30]);
+    xlim([0 20]);
     set(gca, 'yticklabel', cellstr(num2str(get(gca,'ytick')'*100)));
     set(gca, 'FontSize', 12);
     xlabel('Number of Posts','FontSize',20);
@@ -198,7 +199,7 @@ function draw_csl_attr()
     hold on;
     h = cdfplot(dataset_3(:,11));
     set(h, 'color', 'b', 'LineStyle', ':', 'LineWidth', 2);
-    xlim([0 80]);
+    xlim([0 50]);
     set(gca, 'yticklabel', cellstr(num2str(get(gca,'ytick')'*100)));
     set(gca, 'FontSize', 12);
     xlabel('Number of Recommends','FontSize',20);
@@ -221,10 +222,10 @@ function draw_csl_attr()
     hold on;
     h = cdfplot(dataset_3(:,12));
     set(h, 'color', 'b', 'LineStyle', ':', 'LineWidth', 2);
-    xlim([0 15]);
+    xlim([0 10]);
     set(gca, 'yticklabel', cellstr(num2str(get(gca,'ytick')'*100)));
     set(gca, 'FontSize', 12);
-    xlabel('Number of responses','FontSize',20);
+    xlabel('Number of Responses','FontSize',20);
     ylabel('Percentage(%)','FontSize',20);
     legend('Neither', 'TW only', 'FB only', 'Both', 'Location', 'SouthEast');
     set(legend, 'FontSize', 20);
